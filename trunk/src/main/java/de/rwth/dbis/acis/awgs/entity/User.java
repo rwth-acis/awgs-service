@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.entity;
+package de.rwth.dbis.acis.awgs.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -11,15 +11,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "USER")
 @NamedQueries({ 
-	@NamedQuery(name = "User.findAll", query = "SELECT u FROM User u ORDER BY u.xp DESC"),
-	@NamedQuery(name = "User.findUser", query = "SELECT u FROM User u where u.login=:login")
+	@NamedQuery(name = "User.findAll", query = "SELECT u FROM User u ORDER BY u.jid DESC"),
+	@NamedQuery(name = "User.findUser", query = "SELECT u FROM User u where u.jid=:jid")
 })
 @XmlRootElement
 public class User {
 	
 	@Id
-	@Column(name = "LOGIN", nullable = false)
-	private String login;
+	@Column(name = "JID", nullable = false)
+	private String jid;
 	
 	@Column(name = "PASS", nullable = false)
 	private String pass;
@@ -27,15 +27,15 @@ public class User {
 	@Column(name = "NAME", nullable = false)
 	private String name;
 	
-	@Column(name = "XP", nullable = false)
-	private int xp;
+	@Column(name = "MAIL", nullable = false)
+	private String mail;
 
-	public void setLogin(String login) {
-		this.login = login;
+	public void setJid(String jid) {
+		this.jid = jid;
 	}
 
-	public String getLogin() {
-		return login;
+	public String getJid() {
+		return jid;
 	}
 	
 	public void setPass(String pass) {
@@ -54,11 +54,12 @@ public class User {
 		return name;
 	}
 	
-	public int getXp() {
-		return xp;
+	public String getMail() {
+		return mail;
 	}
 
-	public void setXp(int xp) {
-		this.xp = xp;
+	public void setMail(String mail) {
+		this.mail = mail;
 	}
+	
 }

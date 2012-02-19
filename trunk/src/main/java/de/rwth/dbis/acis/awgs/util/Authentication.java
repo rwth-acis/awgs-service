@@ -1,11 +1,11 @@
-package de.rwth.dbis.ugnm.util;
+package de.rwth.dbis.acis.awgs.util;
 
 import com.sun.jersey.core.util.Base64;
 
-import de.rwth.dbis.ugnm.entity.User;
+import de.rwth.dbis.acis.awgs.entity.User;
 
 public class Authentication {
-	// Little gift from your tutors...
+	
 	// A simple authentication mechanism;
 	// For use in one of the defined operations by referring 
 	// to @HeaderParam("authorization") for authHeader.
@@ -15,9 +15,9 @@ public class Authentication {
 			String authkey = authHeader.split(" ")[1];
 			if(Base64.isBase64(authkey)){
 				dauth = (new String(Base64.decode(authkey))).split(":");
-				System.out.println("Login - Should: " + u.getLogin() + " Is: " + dauth[0]);
+				System.out.println("Login - Should: " + u.getJid() + " Is: " + dauth[0]);
 				System.out.println("Pass - Should: " + u.getPass() + " Is: " + dauth[1]);
-				if(dauth[0].equals(u.getLogin()) && dauth[1].equals(u.getPass())){
+				if(dauth[0].equals(u.getJid()) && dauth[1].equals(u.getPass())){
 					return true;
 				}
 			}

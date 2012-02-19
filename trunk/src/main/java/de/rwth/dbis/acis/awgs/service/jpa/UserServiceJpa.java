@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.service.jpa;
+package de.rwth.dbis.acis.awgs.service.jpa;
 
 import java.util.List;
 
@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.rwth.dbis.ugnm.entity.User;
-import de.rwth.dbis.ugnm.service.UserService;
+import de.rwth.dbis.acis.awgs.entity.User;
+import de.rwth.dbis.acis.awgs.service.UserService;
 
 @Service("userService")
 public class UserServiceJpa implements UserService {
@@ -28,9 +28,9 @@ public class UserServiceJpa implements UserService {
 	}
 	
 	@Transactional(readOnly = true)
-	public User getByLogin(String login){
+	public User getByJid(String jid){
 		Query queryFindUser = entityManager.createNamedQuery("User.findUser");
-		queryFindUser.setParameter("login", login);
+		queryFindUser.setParameter("jid", jid);
 
 		List<User> users = queryFindUser.getResultList();
 		User result = null;
@@ -65,7 +65,7 @@ public class UserServiceJpa implements UserService {
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
 	public boolean delete(User user) {
-		user = entityManager.getReference(User.class, user.getLogin());
+		user = entityManager.getReference(User.class, user.getJid());
 		if (user == null)
 			return false;
 		entityManager.remove(user);
@@ -78,7 +78,7 @@ public class UserServiceJpa implements UserService {
 	public User findUser(User user) {
 		User result = null;
 		Query queryFindUser = entityManager.createNamedQuery("User.findUser");
-		queryFindUser.setParameter("login", user.getLogin());
+		queryFindUser.setParameter("login", user.getJid());
 
 		List<User> users = queryFindUser.getResultList();
 		if(users.size() > 0) {

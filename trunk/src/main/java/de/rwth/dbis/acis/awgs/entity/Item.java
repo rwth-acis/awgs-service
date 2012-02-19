@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.entity;
+package de.rwth.dbis.acis.awgs.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,66 +10,69 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name = "MEDIUM")
+@Table(name = "ITEM")
 @NamedQueries({ 
-	@NamedQuery(name = "Medium.findAll", query = "SELECT m FROM Medium m"),
-	@NamedQuery(name = "Medium.findMedium", query = "SELECT m FROM Medium m where m.id=:id"),
-	@NamedQuery(name = "Medium.findMediumUrl", query = "SELECT m FROM Medium m where m.url=:url")
+	@NamedQuery(name = "Item.findAll", query = "SELECT m FROM Item m"),
+	@NamedQuery(name = "Item.findItem", query = "SELECT m FROM Item m where m.id=:id"),
+	@NamedQuery(name = "Item.findItemUrl", query = "SELECT m FROM Item m where m.url=:url")
 })
 @XmlRootElement
-public class Medium {
+public class Item {
 	
 	@Id
-	@GeneratedValue
-	@Column(name = "ID")
+	@Column(name = "ID", nullable = false)
 	private int id;
 	
 	@Column(name = "URL", nullable = false)
 	private String url;
 	
-	@Column(name = "DESCRIPTION")
+	@Column(name = "NAME", nullable = false)
+	private String name;
+	
+	@Column(name = "DESCRIPTION", nullable=false)
 	private String description;
 	
-	 /**
-	 * @return the id
-	 */
+	@Column(name = "STATUS", nullable=false)
+	private int status;
+	
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the url
-	 */
 	public String getUrl() {
 		return url;
 	}
 
-	/**
-	 * @param url the url to set
-	 */
 	public void setUrl(String url) {
 		this.url = url;
 	}
 
-	/**
-	 * @return the description
-	 */
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
 	public String getDescription() {
 		return description;
 	}
 
-	/**
-	 * @param description the description to set
-	 */
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public int getStatus() {
+		return status;
+	}
+
+	public void setStatus(int status) {
+		this.status = status;
 	}
 
 }

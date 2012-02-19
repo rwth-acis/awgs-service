@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.util;
+package de.rwth.dbis.acis.awgs.util;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.ResponseBuilder;

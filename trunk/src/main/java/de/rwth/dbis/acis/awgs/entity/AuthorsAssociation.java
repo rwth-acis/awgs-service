@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.entity;
+package de.rwth.dbis.acis.awgs.entity;
 
 import java.util.Date;
 
@@ -14,16 +14,16 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name="RATES")
+@Table(name="AUTHORS")
 @NamedQueries({ 
-	@NamedQuery(name = "RatesAssociation.findAll", query = "SELECT r FROM RatesAssociation r ORDER BY r.time"),
-	@NamedQuery(name = "RatesAssociation.findById", query = "SELECT r FROM RatesAssociation r WHERE r.id=:id"),
-	@NamedQuery(name = "RatesAssociation.findByUser", query = "SELECT r FROM RatesAssociation r WHERE r.user=:user ORDER BY r.time"),
-	@NamedQuery(name = "RatesAssociation.findByMedium", query = "SELECT r FROM RatesAssociation r where r.medium=:medium ORDER BY r.time"),
-	@NamedQuery(name = "RatesAssociation.find", query = "SELECT r FROM RatesAssociation r where r.medium=:medium and r.user=:user and r.time=:time")
+	@NamedQuery(name = "AuthorsAssociation.findAll", query = "SELECT a FROM AuthorsAssociation r ORDER BY a.time"),
+	@NamedQuery(name = "AuthorsAssociation.findById", query = "SELECT a FROM AuthorsAssociation r WHERE a.id=:id"),
+	@NamedQuery(name = "AuthorsAssociation.findByUser", query = "SELECT a FROM AuthorsAssociation a WHERE a.user=:user ORDER BY a.time"),
+	@NamedQuery(name = "AuthorsAssociation.findByItem", query = "SELECT a FROM AuthorsAssociation a where a.item=:item ORDER BY a.time"),
+	@NamedQuery(name = "AuthorsAssociation.find", query = "SELECT a FROM AuthorsAssociation a where a.item=:item and a.user=:user and a.time=:time")
 })
 @XmlRootElement
-public class RatesAssociation {
+public class AuthorsAssociation {
 	@Id
 	@Column(name="ID")
 	@GeneratedValue
@@ -31,106 +31,58 @@ public class RatesAssociation {
 	
 	@Column(name="USER",nullable = false)
 	private String user;
-	
-	@Column(name="MEDIUM", nullable = false)
-	private int medium;
 
-	@Column(name="RATING", nullable = false)
-	private int rating;
+	@Column(name="ITEM", nullable = false)
+	private String item;
 
 	@Column(name="TIME", nullable = false)
 	private Date time;
 
 	@ManyToOne
-	@JoinColumn(name="USER", referencedColumnName="LOGIN", insertable = false, updatable = false)
+	@JoinColumn(name="USER", referencedColumnName="JID", insertable = false, updatable = false)
 	private User userInstance;
 
 	@ManyToOne
-	@JoinColumn(name="MEDIUM", referencedColumnName="ID", insertable = false, updatable = false)
-	private Medium mediumInstance;
+	@JoinColumn(name="ITEM", referencedColumnName="ID", insertable = false, updatable = false)
+	private Item itemInstance;
 
-	/**
-	 * @return the id
-	 */
 	public int getId() {
 		return id;
 	}
 
-	/**
-	 * @param id the id to set
-	 */
 	public void setId(int id) {
 		this.id = id;
 	}
 
-	/**
-	 * @return the user
-	 */
 	public String getUser() {
 		return user;
 	}
 
-	/**
-	 * @param user the user to set
-	 */
 	public void setUser(String user) {
 		this.user = user;
 	}
 
-	/**
-	 * @return the medium
-	 */
-	public int getMedium() {
-		return medium;
+	public User getUserInstance() {
+		return userInstance;
+	}
+	
+	public String getItem() {
+		return item;
 	}
 
-	/**
-	 * @param medium the medium to set
-	 */
-	public void setMedium(int medium) {
-		this.medium = medium;
+	public void setItem(String item) {
+		this.item = item;
 	}
 
-	/**
-	 * @return the rating
-	 */
-	public int getRating() {
-		return rating;
-	}
-
-	/**
-	 * @param rating the rating to set
-	 */
-	public void setRating(int rating) {
-		this.rating = rating;
-	}
-
-	/**
-	 * @return the time
-	 */
 	public Date getTime() {
 		return time;
 	}
 
-	/**
-	 * @param time the time to set
-	 */
+	public Item getItemInstance() {
+		return itemInstance;
+	}
+	
 	public void setTime(Date time) {
 		this.time = time;
 	}
-
-	/**
-	 * @return the userInstance
-	 */
-	public User getUserInstance() {
-		return userInstance;
-	}
-
-	/**
-	 * @return the mediumInstance
-	 */
-	public Medium getMediumInstance() {
-		return mediumInstance;
-	}
-
 }
