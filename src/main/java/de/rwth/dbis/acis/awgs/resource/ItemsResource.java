@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.resource;
+package de.rwth.dbis.acis.awgs.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,17 +25,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.ugnm.entity.Medium;
-import de.rwth.dbis.ugnm.entity.User;
-import de.rwth.dbis.ugnm.service.MediaService;
-import de.rwth.dbis.ugnm.util.CORS;
+import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.service.ItemService;
+import de.rwth.dbis.acis.awgs.util.CORS;
 
-@Path("/media")
+@Path("/items")
 @Component
-public class MediaResource {
+public class ItemsResource {
 
 	@Autowired
-	MediaService mediaService;
+	ItemService itemService;
 	
 	@Context UriInfo uriInfo;
 	
@@ -49,27 +48,24 @@ public class MediaResource {
 	
 	@GET
 	@Produces("application/json")
-	public Response getMedia() {
+	public Response getItems() {
 		
-		System.out.println("Media Resource: " + uriInfo.getAbsolutePath());
-		
-		List<Medium> media = mediaService.getAll();
-		Iterator<Medium> medit = media.iterator();
+		List<Item> items = itemService.getAll();
+		Iterator<Item> itemit = items.iterator();
 
 		JSONObject jo = new JSONObject();
 
 		try {
-			while(medit.hasNext()){
-				Medium m = medit.next();
+			while(itemit.hasNext()){
+				Item i = itemit.next();
 				JSONObject jom = new JSONObject();
 				
-				String mUri = uriInfo.getAbsolutePath().toASCIIString() + "/" + m.getId();
-				jom.put("resource", mUri);
-				jom.put("id", m.getId());
-				jom.put("description", m.getDescription());
-				jom.put("url", m.getUrl());
-				
-				jo.accumulate("media", jom);
+				jom.put("id", i.getId());
+				jom.put("name",i.getName());
+				jom.put("description", i.getDescription());
+				jom.put("url", i.getUrl());
+				jom.put("status", i.getStatus());
+				jo.accumulate("items", jom);
 			}
 		} catch (JSONException e) {
 			Response.ResponseBuilder r = Response.serverError();
@@ -78,29 +74,28 @@ public class MediaResource {
 
 		Response.ResponseBuilder r = Response.ok(jo);
 		return CORS.makeCORS(r,_corsHeaders);
-		
 	}
 	
 	@POST
     @Consumes("application/json")
-    public Response putMedium(JSONObject o) throws JSONException {
+    public Response putItem(JSONObject o) throws JSONException {
         
 		if(o == null || !(o.has("url"))){
 			throw new WebApplicationException(Status.BAD_REQUEST);
 		}
 		else{
-        	Medium newMedium = new Medium();
+        	Item newItem = new Item();
         	String murl = (String) o.get("url");
-        	newMedium.setUrl(murl);
+        	newItem.setUrl(murl);
         	
         	if(o.has("description")){
-        		newMedium.setDescription((String) o.get("description"));
+        		newItem.setDescription((String) o.get("description"));
         	}
         	
-        	if(mediaService.getByUrl(murl) == null) {
-        		mediaService.save(newMedium);
+        	if(itemService.getByUrl(murl) == null) {
+        		itemService.save(newItem);
         		
-        		Medium mfdb = mediaService.getByUrl(murl);
+        		Item mfdb = itemService.getByUrl(murl);
         		
         		URI location;
 				try {

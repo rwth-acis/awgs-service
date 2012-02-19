@@ -1,17 +1,17 @@
-package de.rwth.dbis.ugnm.service;
+package de.rwth.dbis.acis.awgs.service;
 
 import java.util.Date;
 import java.util.List;
 
-import de.rwth.dbis.ugnm.entity.RatesAssociation;
+import de.rwth.dbis.acis.awgs.entity.AuthorsAssociation;
 
-public interface RatingService {
-	public boolean save(RatesAssociation rating);
-	public RatesAssociation get(String login, int mediaId, Date time);
-	public List<RatesAssociation> getAll();
-	public RatesAssociation getById(String id);
-	public List<RatesAssociation> getRatingsForUser(String login);
-	public List<RatesAssociation> getRatingsForMedium (int id);
-	public boolean delete(RatesAssociation rating);
-	public boolean update(RatesAssociation rating);
+public interface AuthorsService {
+	public boolean save(AuthorsAssociation rating);
+	public AuthorsAssociation get(String login, String mediaId, Date time);
+	public List<AuthorsAssociation> getAll();
+	public AuthorsAssociation getById(String id);
+	public List<AuthorsAssociation> getAuthorshipsForUser(String login);
+	public List<AuthorsAssociation> getAuthorshipsForItem (String id);
+	public boolean delete(AuthorsAssociation rating);
+	public boolean update(AuthorsAssociation rating);
 }

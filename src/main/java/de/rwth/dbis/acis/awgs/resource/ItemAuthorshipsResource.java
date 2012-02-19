@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.resource;
+package de.rwth.dbis.acis.awgs.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -27,26 +27,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.ugnm.entity.RatesAssociation;
-import de.rwth.dbis.ugnm.entity.User;
-import de.rwth.dbis.ugnm.service.MediaService;
-import de.rwth.dbis.ugnm.service.RatingService;
-import de.rwth.dbis.ugnm.service.UserService;
-import de.rwth.dbis.ugnm.util.Authentication;
-import de.rwth.dbis.ugnm.util.CORS;
+import de.rwth.dbis.acis.awgs.entity.AuthorsAssociation;
+import de.rwth.dbis.acis.awgs.entity.User;
+import de.rwth.dbis.acis.awgs.service.AuthorsService;
+import de.rwth.dbis.acis.awgs.service.ItemService;
+import de.rwth.dbis.acis.awgs.service.UserService;
+import de.rwth.dbis.acis.awgs.util.Authentication;
+import de.rwth.dbis.acis.awgs.util.CORS;
 
 @Path("/media/{id}/ratings")
 @Component
-public class MediaRatingsResource {
+public class ItemAuthorshipsResource {
 
 	@Context UriInfo uriInfo;
 
 	@Autowired
-	RatingService ratingService;
+	AuthorsService authorsService;
 	@Autowired
 	UserService userService;
 	@Autowired
-	MediaService mediaService;
+	ItemService mediaService;
 
 	private String _corsHeaders;
 
@@ -58,25 +58,24 @@ public class MediaRatingsResource {
 	
 	@GET
 	@Produces("application/json")
-	public Response getMediaRatings(@PathParam("id") int mediaid) {
+	public Response getMediaRatings(@PathParam("id") String itemid) {
 
-		List<RatesAssociation> media = ratingService.getRatingsForMedium(mediaid);
-		Iterator<RatesAssociation> usit = media.iterator();
+		List<AuthorsAssociation> media = authorsService.getAuthorshipsForItem(itemid);
+		Iterator<AuthorsAssociation> usit = media.iterator();
 
 		JSONObject j = new JSONObject();
 
 		try {
 			while(usit.hasNext()){
-				RatesAssociation m = usit.next();
+				AuthorsAssociation m = usit.next();
 
 				String userUri = uriInfo.getBaseUri().toASCIIString() + "/users/" + m.getUser();
-				String mediumUri = uriInfo.getBaseUri().toASCIIString() + "/media/" + m.getMedium();
+				String mediumUri = uriInfo.getBaseUri().toASCIIString() + "/media/" + m.getItem();
 				
 				JSONObject rating = new JSONObject();
 				
-				rating.put("medium",mediumUri);
+				rating.put("item",mediumUri);
 				rating.put("user",userUri);
-				rating.put("rating", m.getRating());
 				rating.put("time", m.getTime().toString());
 				
 				j.accumulate("ratings", rating);
@@ -93,7 +92,7 @@ public class MediaRatingsResource {
 	
 	@POST
 	@Consumes("application/json")
-    public Response rateMedium(@HeaderParam("authorization") String auth, @PathParam("id") int mediaid,  JSONObject o) throws JSONException {
+    public Response rateMedium(@HeaderParam("authorization") String auth, @PathParam("id") String itemid,  JSONObject o) throws JSONException {
         
 		if(o == null || !(o.has("rating"))){
 			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
@@ -102,10 +101,10 @@ public class MediaRatingsResource {
 		
 		else{
 			String[] authorize = Authentication.parseAuthHeader(auth);
-			String login = authorize[0];
+			String jid = authorize[0];
 			String pass = authorize[1];
 			
-			User usr = userService.getByLogin(login);
+			User usr = userService.getByJid(jid);
 			
 			if(usr == null){
 				Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
@@ -117,23 +116,17 @@ public class MediaRatingsResource {
 				return CORS.makeCORS(r,_corsHeaders);
 			}
 			
-        	RatesAssociation ra = new RatesAssociation();
-        	ra.setMedium(mediaid);
-        	ra.setUser(usr.getLogin());
-        	ra.setRating(o.getInt("rating"));
+        	AuthorsAssociation ra = new AuthorsAssociation();
+        	ra.setItem(itemid);
+        	ra.setUser(usr.getJid());
         	
         	Date ctime = new Date();
         	ra.setTime(ctime);
         	
-        	if(ratingService.get(usr.getLogin(),mediaid,ctime) == null) {
-        		ratingService.save(ra);
+        	if(authorsService.get(usr.getJid(),itemid,ctime) == null) {
+        		authorsService.save(ra);
         		
-        		int xp = usr.getXp() + 25;
-        		usr.setXp(xp);
-        		
-        		userService.update(usr);
-        		
-        		RatesAssociation r = ratingService.get(usr.getLogin(),mediaid,ctime);
+        		AuthorsAssociation r = authorsService.get(usr.getJid(),itemid,ctime);
         		
         		URI location;
 				try {

@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.resource;
+package de.rwth.dbis.acis.awgs.resource;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -18,12 +18,12 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.ugnm.entity.User;
-import de.rwth.dbis.ugnm.service.UserService;
-import de.rwth.dbis.ugnm.util.Authentication;
-import de.rwth.dbis.ugnm.util.CORS;
+import de.rwth.dbis.acis.awgs.entity.User;
+import de.rwth.dbis.acis.awgs.service.UserService;
+import de.rwth.dbis.acis.awgs.util.Authentication;
+import de.rwth.dbis.acis.awgs.util.CORS;
 
-@Path("/users/{login}")
+@Path("/users/{jid}")
 @Component
 public class UserResource {
 
@@ -40,9 +40,9 @@ public class UserResource {
 	
 	@GET
 	@Produces("application/json")
-	public Response getUser(@PathParam("login") String login, @HeaderParam("authorization") String auth) {
+	public Response getUser(@PathParam("jid") String jid, @HeaderParam("authorization") String auth) {
 		
-		User u = userService.getByLogin(login);
+		User u = userService.getByJid(jid);
 		
 		if (u == null){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
@@ -60,9 +60,9 @@ public class UserResource {
 		
 		try {
 			JSONObject jo = new JSONObject();
-			jo.put("login", u.getLogin());
+			jo.put("login", u.getJid());
 			jo.put("name", u.getName());
-			jo.put("xp", u.getXp());
+			jo.put("mail", u.getMail());
 			
 			Response.ResponseBuilder r = Response.ok(jo);
 			return CORS.makeCORS(r,_corsHeaders);
@@ -87,7 +87,7 @@ public class UserResource {
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 		
-		User u = userService.getByLogin(login);
+		User u = userService.getByJid(login);
 		
 		if(u == null){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
@@ -122,8 +122,8 @@ public class UserResource {
     }
 	
 	@DELETE
-	public Response deleteUser(@HeaderParam("authorization") String auth, @PathParam("login") String login){
-		User u = userService.getByLogin(login);
+	public Response deleteUser(@HeaderParam("authorization") String auth, @PathParam("jid") String jid){
+		User u = userService.getByJid(jid);
 		
 		if(u == null){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);

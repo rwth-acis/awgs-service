@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.resource;
+package de.rwth.dbis.acis.awgs.resource;
 
 import java.util.Iterator;
 import java.util.List;
@@ -19,41 +19,40 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.ugnm.entity.RatesAssociation;
-import de.rwth.dbis.ugnm.service.RatingService;
+import de.rwth.dbis.acis.awgs.entity.AuthorsAssociation;
+import de.rwth.dbis.acis.awgs.service.AuthorsService;
 
-@Path("/users/{login}/ratings")
+@Path("/users/{jid}/authorships")
 @Component
-public class UserRatingsResource {
+public class UserAuthorshipsResource {
 
 	@Context UriInfo uriInfo;
 
 	@Autowired
-	RatingService ratingService;
+	AuthorsService ratingService;
 
 	@GET
 	@Produces("application/json")
-	public JSONObject getUserRatings(@PathParam("login") String login) {
+	public JSONObject getUserRatings(@PathParam("jid") String jid) {
 
-		List<RatesAssociation> media = ratingService.getRatingsForUser(login);
-		Iterator<RatesAssociation> usit = media.iterator();
+		List<AuthorsAssociation> media = ratingService.getAuthorshipsForUser(jid);
+		Iterator<AuthorsAssociation> usit = media.iterator();
 
 		Vector<JSONObject> vRatings = new Vector<JSONObject>();	
 
 		try {
 			while(usit.hasNext()){
-				RatesAssociation m = usit.next();
+				AuthorsAssociation m = usit.next();
 
-				String mediaResourceUri = uriInfo.getBaseUri().toASCIIString() + "/media/" + m.getMedium();
+				String itemResourceUri = uriInfo.getBaseUri().toASCIIString() + "/items/" + m.getItem();
 				JSONObject rating = new JSONObject();
-				rating.append("medium",mediaResourceUri);
-				rating.append("rating", m.getRating());
+				rating.append("item",itemResourceUri);
 				rating.append("time", m.getTime().toString());
 				vRatings.add(rating);
 			}
 
 			JSONObject j = new JSONObject();
-			j.append("ratings",vRatings);
+			j.append("authorships",vRatings);
 			return j;
 		} catch (JSONException e) {
 			throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);

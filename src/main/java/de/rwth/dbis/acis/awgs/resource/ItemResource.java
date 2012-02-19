@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.resource;
+package de.rwth.dbis.acis.awgs.resource;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -10,27 +10,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.ugnm.entity.Medium;
-import de.rwth.dbis.ugnm.service.MediaService;
+import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.service.ItemService;
 
-@Path("/media/{id}")
+
+@Path("/items/{id}")
 @Component
-public class MediumResource {
+public class ItemResource {
 
 	@Autowired
-	MediaService mediaService;
+	ItemService itemService;
 
 	@GET
 	@Produces("application/json")
-	public Medium getUser(@PathParam("id") int id) {
+	public Item getUser(@PathParam("id") int id) {
 		
-		Medium u = mediaService.getById(id);
+		Item i = itemService.getById(id);
 		
-		if (u == null){
+		if (i == null){
 			throw new WebApplicationException(404);
 		}
 		
-		return u;
+		return i;
 	}
 
 }

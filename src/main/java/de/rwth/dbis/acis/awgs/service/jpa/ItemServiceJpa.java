@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.service.jpa;
+package de.rwth.dbis.acis.awgs.service.jpa;
 
 import java.util.List;
 
@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import de.rwth.dbis.ugnm.entity.Medium;
-import de.rwth.dbis.ugnm.service.MediaService;
+import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.service.ItemService;
 
-@Service("mediaService")
-public class MediaServiceJpa implements MediaService {
+@Service("itemService")
+public class ItemServiceJpa implements ItemService {
 
 	private EntityManager entityManager;
 
@@ -28,12 +28,12 @@ public class MediaServiceJpa implements MediaService {
 	}
 	
 	@Transactional(readOnly = true)
-	public Medium getById(int id){
-		Query queryFindMedium = entityManager.createNamedQuery("Medium.findMedium");
-		queryFindMedium.setParameter("id", id);
+	public Item getById(int id){
+		Query queryFindItem = entityManager.createNamedQuery("Item.findItem");
+		queryFindItem.setParameter("id", id);
 
-		List<Medium> media = queryFindMedium.getResultList();
-		Medium result = null;
+		List<Item> media = queryFindItem.getResultList();
+		Item result = null;
 		if(media.size() > 0) {
 			result = media.get(0);
 		}
@@ -41,12 +41,12 @@ public class MediaServiceJpa implements MediaService {
 	}
 	
 	@Transactional(readOnly = true)
-	public Medium getByUrl(String url){
-		Query queryFindMedium = entityManager.createNamedQuery("Medium.findMediumUrl");
-		queryFindMedium.setParameter("url", url);
+	public Item getByUrl(String url){
+		Query queryFindItem = entityManager.createNamedQuery("Item.findItemUrl");
+		queryFindItem.setParameter("url", url);
 
-		List<Medium> media = queryFindMedium.getResultList();
-		Medium result = null;
+		List<Item> media = queryFindItem.getResultList();
+		Item result = null;
 		if(media.size() > 0) {
 			result = media.get(0);
 		}
@@ -55,15 +55,15 @@ public class MediaServiceJpa implements MediaService {
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public List<Medium> getAll() {
-		Query query = entityManager.createNamedQuery("Medium.findAll");
-		List<Medium> media = null;
+	public List<Item> getAll() {
+		Query query = entityManager.createNamedQuery("Item.findAll");
+		List<Item> media = null;
 		media = query.getResultList();
 		return media;
 	}
 
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
-	public boolean save(Medium medium) {
+	public boolean save(Item medium) {
 		
 		entityManager.persist(medium);
 		entityManager.flush();
@@ -71,14 +71,14 @@ public class MediaServiceJpa implements MediaService {
 		return true;
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
-	public boolean update(Medium medium) {
+	public boolean update(Item medium) {
 		entityManager.merge(medium);
 		entityManager.flush();
 		return true;
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
-	public boolean delete(Medium medium) {
-		medium = entityManager.getReference(Medium.class, medium.getId());
+	public boolean delete(Item medium) {
+		medium = entityManager.getReference(Item.class, medium.getId());
 		if (medium == null)
 			return false;
 		entityManager.remove(medium);
@@ -88,12 +88,12 @@ public class MediaServiceJpa implements MediaService {
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public Medium findMedium(Medium medium) {
-		Medium result = null;
-		Query queryFindMedium = entityManager.createNamedQuery("Medium.findMedium");
-		queryFindMedium.setParameter("id", medium.getId());
+	public Item findItem(Item medium) {
+		Item result = null;
+		Query queryFindItem = entityManager.createNamedQuery("Item.findItem");
+		queryFindItem.setParameter("id", medium.getId());
 
-		List<Medium> media = queryFindMedium.getResultList();
+		List<Item> media = queryFindItem.getResultList();
 		if(media.size() > 0) {
 			result = media.get(0);
 		}

@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.resource;
+package de.rwth.dbis.acis.awgs.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -23,9 +23,9 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.ugnm.entity.User;
-import de.rwth.dbis.ugnm.service.UserService;
-import de.rwth.dbis.ugnm.util.CORS;
+import de.rwth.dbis.acis.awgs.entity.User;
+import de.rwth.dbis.acis.awgs.service.UserService;
+import de.rwth.dbis.acis.awgs.util.CORS;
 
 @Path("/users")
 @Component
@@ -56,10 +56,10 @@ public class UsersResource {
 			while(usit.hasNext()){
 				User u = usit.next();
 				JSONObject jou = new JSONObject();
-				jou.put("login", u.getLogin());
+				jou.put("jid", u.getJid());
 				jou.put("name", u.getName());
-				jou.put("xp", u.getXp());
-				String uUri = uriInfo.getAbsolutePath().toASCIIString() + "/" + u.getLogin();
+				jou.put("mail", u.getMail());
+				String uUri = uriInfo.getAbsolutePath().toASCIIString() + "/" + u.getJid();
 				jou.put("resource", uUri);
 				jo.accumulate("users", jou);
 			}
@@ -76,21 +76,21 @@ public class UsersResource {
 	@Consumes("application/json")
 	public Response putUser(JSONObject o) throws JSONException {
 
-		if(o == null || !(o.has("login") && o.has("name") && o.has("pass"))){
+		if(o == null || !(o.has("jid") && o.has("name") && o.has("pass") && o.has("mail"))){
 			throw new WebApplicationException(Status.BAD_REQUEST);
 		}
 		else{
 			User nu = new User();
-			nu.setLogin((String) o.get("login"));
+			nu.setJid((String) o.get("jid"));
 			nu.setPass((String) o.get("pass"));
 			nu.setName((String) o.get("name"));
-			nu.setXp(0);
+			nu.setMail((String) o.get("mail"));
 
 			if(userService.findUser(nu) == null) {
 				userService.save(nu);
 				URI location;
 				try {
-					location = new URI(uriInfo.getAbsolutePath().toASCIIString() + "/" + o.get("login"));
+					location = new URI(uriInfo.getAbsolutePath().toASCIIString() + "/" + o.get("jid"));
 					
 					Response.ResponseBuilder r = Response.created(location);
 					return CORS.makeCORS(r, _corsHeaders);

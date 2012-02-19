@@ -1,4 +1,4 @@
-package de.rwth.dbis.ugnm.module.realtime;
+package de.rwth.dbis.acis.awgs.module.realtime;
 
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -60,11 +60,11 @@ import com.google.inject.AbstractModule;
 import com.google.inject.multibindings.MapBinder;
 import com.google.inject.name.Names;
 
-import de.rwth.dbis.ugnm.entity.RatesAssociation;
-import de.rwth.dbis.ugnm.entity.User;
-import de.rwth.dbis.ugnm.service.RatingService;
-import de.rwth.dbis.ugnm.service.UserService;
-import de.rwth.dbis.ugnm.util.CORS;
+import de.rwth.dbis.acis.awgs.entity.AuthorsAssociation;
+import de.rwth.dbis.acis.awgs.entity.User;
+import de.rwth.dbis.acis.awgs.service.AuthorsService;
+import de.rwth.dbis.acis.awgs.service.UserService;
+
 
 /**
  * @author Dominik Renzel (renzel@dbis.rwth-aachen.de)
@@ -105,7 +105,7 @@ public class RealtimeModule implements PacketListener {
 	private UserService userService;
 	
 	@Autowired
-	private RatingService ratingService;
+	private AuthorsService authorsService;
 
 	public void configure() {
 
@@ -392,12 +392,12 @@ public class RealtimeModule implements PacketListener {
 					response += "<br/> get information about a registered user";
 				}
 				else{
-					User u = userService.getByLogin(tokens[1]);
+					User u = userService.getByJid(tokens[1]);
 					try {
 						JSONObject jo = new JSONObject();
-						jo.put("login", u.getLogin());
+						jo.put("jid", u.getMail());
 						jo.put("name", u.getName());
-						jo.put("xp", u.getXp());
+						jo.put("mail", u.getMail());
 						
 						response = jo.toString(2);
 						//response = u.getLogin();
@@ -407,37 +407,37 @@ public class RealtimeModule implements PacketListener {
 					}
 				}
 			}
-			else if(body.startsWith("@awgs-bot get medium ratings ")){
-				String[] tokens = body.split("@awgs-bot get medium ratings ");
+			else if(body.startsWith("@awgs-bot get item authors ")){
+				String[] tokens = body.split("@awgs-bot get item authors ");
 				System.out.println("Token 2: " + tokens[1]);
 				if(tokens.length != 2){
 					response = "Syntax error!<br/></br>";
-					response += "Syntax: @awgs-bot get medium ratings <mediaid>";
-					response += "<br/> get rating information about a registered medium";
+					response += "Syntax: @awgs-bot get item authors <awgsid>";
+					response += "<br/> get rating information about a registered item";
 				}
 				else{
-					Integer mediaId = Integer.parseInt(tokens[1]);
-					List<RatesAssociation> rs = ratingService.getRatingsForMedium(mediaId);
+					String itemid = tokens[1];
+					List<AuthorsAssociation> rs = authorsService.getAuthorshipsForItem(itemid);
 					
-					Iterator<RatesAssociation> rit = rs.iterator();
+					Iterator<AuthorsAssociation> rit = rs.iterator();
 
 					JSONObject j = new JSONObject();
 
 					try {
 						while(rit.hasNext()){
-							RatesAssociation r = rit.next();
+							AuthorsAssociation r = rit.next();
 
 							
 							JSONObject rating = new JSONObject();
 							
-							rating.put("medium",r.getMediumInstance().getUrl());
-							rating.put("user",r.getUserInstance().getLogin());
-							rating.put("rating", r.getRating());
+							rating.put("id",r.getId());
+							rating.put("item",r.getItemInstance().getUrl());
+							rating.put("user",r.getUserInstance().getJid());
 							rating.put("time", r.getTime().toString());
 							
 							j.accumulate("ratings", rating);
 						}
-						response = "Ratings for medium " + mediaId;
+						response = "Authors for item " + itemid;
 						response += j.toString(2);
 						System.out.println("Response: " +response);
 						
