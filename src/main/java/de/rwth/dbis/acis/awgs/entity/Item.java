@@ -21,7 +21,7 @@ public class Item {
 	
 	@Id
 	@Column(name = "ID", nullable = false)
-	private int id;
+	private String id;
 	
 	@Column(name = "URL", nullable = false)
 	private String url;
@@ -35,11 +35,15 @@ public class Item {
 	@Column(name = "STATUS", nullable=false)
 	private int status;
 	
-	public int getId() {
+	@Column(name = "OWNER", nullable=false)
+	private String owner;
+	
+	
+	public String getId() {
 		return id;
 	}
 
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 
@@ -73,6 +77,14 @@ public class Item {
 
 	public void setStatus(int status) {
 		this.status = status;
+	}
+
+	public String getOwner() {
+		return owner;
+	}
+
+	public void setOwner(String owner) {
+		this.owner = owner;
 	}
 
 }

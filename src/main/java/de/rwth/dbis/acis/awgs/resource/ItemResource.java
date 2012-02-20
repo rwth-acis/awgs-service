@@ -23,14 +23,13 @@ public class ItemResource {
 
 	@GET
 	@Produces("application/json")
-	public Item getUser(@PathParam("id") int id) {
+	public Item getUser(@PathParam("id") String id) {
 		
 		Item i = itemService.getById(id);
 		
 		if (i == null){
 			throw new WebApplicationException(404);
 		}
-		
 		return i;
 	}
 
