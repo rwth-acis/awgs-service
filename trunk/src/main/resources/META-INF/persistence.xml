@@ -3,8 +3,8 @@
 		xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
 		version="1.0">
 
-	<persistence-unit name="awgs-user" transaction-type="RESOURCE_LOCAL">
-        <class>de.rwth.dbis.acis.awgs.entity.User</class>
+	<persistence-unit name="awgs-item" transaction-type="RESOURCE_LOCAL">
+        <class>de.rwth.dbis.acis.awgs.entity.Item</class>
     </persistence-unit>
 
 </persistence>

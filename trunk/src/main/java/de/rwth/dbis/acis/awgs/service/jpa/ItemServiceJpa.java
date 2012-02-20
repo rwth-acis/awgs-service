@@ -28,14 +28,14 @@ public class ItemServiceJpa implements ItemService {
 	}
 	
 	@Transactional(readOnly = true)
-	public Item getById(int id){
+	public Item getById(String id){
 		Query queryFindItem = entityManager.createNamedQuery("Item.findItem");
 		queryFindItem.setParameter("id", id);
 
-		List<Item> media = queryFindItem.getResultList();
+		List<Item> items = queryFindItem.getResultList();
 		Item result = null;
-		if(media.size() > 0) {
-			result = media.get(0);
+		if(items.size() > 0) {
+			result = items.get(0);
 		}
 		return result;
 	}
@@ -45,10 +45,10 @@ public class ItemServiceJpa implements ItemService {
 		Query queryFindItem = entityManager.createNamedQuery("Item.findItemUrl");
 		queryFindItem.setParameter("url", url);
 
-		List<Item> media = queryFindItem.getResultList();
+		List<Item> items = queryFindItem.getResultList();
 		Item result = null;
-		if(media.size() > 0) {
-			result = media.get(0);
+		if(items.size() > 0) {
+			result = items.get(0);
 		}
 		return result;
 	}
@@ -57,45 +57,45 @@ public class ItemServiceJpa implements ItemService {
 	@Transactional(readOnly = true)
 	public List<Item> getAll() {
 		Query query = entityManager.createNamedQuery("Item.findAll");
-		List<Item> media = null;
-		media = query.getResultList();
-		return media;
+		List<Item> items = null;
+		items = query.getResultList();
+		return items;
 	}
 
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
-	public boolean save(Item medium) {
+	public boolean save(Item item) {
 		
-		entityManager.persist(medium);
+		entityManager.persist(item);
 		entityManager.flush();
 		
 		return true;
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
-	public boolean update(Item medium) {
-		entityManager.merge(medium);
+	public boolean update(Item item) {
+		entityManager.merge(item);
 		entityManager.flush();
 		return true;
 	}
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
-	public boolean delete(Item medium) {
-		medium = entityManager.getReference(Item.class, medium.getId());
-		if (medium == null)
+	public boolean delete(Item item) {
+		item = entityManager.getReference(Item.class, item.getId());
+		if (item == null)
 			return false;
-		entityManager.remove(medium);
+		entityManager.remove(item);
 		entityManager.flush();
 		return true;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
-	public Item findItem(Item medium) {
+	public Item findItem(Item item) {
 		Item result = null;
 		Query queryFindItem = entityManager.createNamedQuery("Item.findItem");
-		queryFindItem.setParameter("id", medium.getId());
+		queryFindItem.setParameter("id", item.getId());
 
-		List<Item> media = queryFindItem.getResultList();
-		if(media.size() > 0) {
-			result = media.get(0);
+		List<Item> items = queryFindItem.getResultList();
+		if(items.size() > 0) {
+			result = items.get(0);
 		}
 		return result;
 	}
