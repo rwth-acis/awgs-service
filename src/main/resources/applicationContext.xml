@@ -10,7 +10,7 @@
 			http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
 			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
    <!--  Scan for both Jersey Rest Annotations a -->
-   <context:component-scan base-package="de.rwth.dbis.ugnm.resource,de.rwth.dbis.ugnm.service,de.rwth.dbis.ugnm.service.jpa,de.rwth.dbis.ugnm.module.realtime"/>
+   <context:component-scan base-package="de.rwth.dbis.acis.awgs.resource,de.rwth.dbis.acis.awgs.service,de.rwth.dbis.acis.awgs.service.jpa,de.rwth.dbis.acis.awgs.module.realtime"/>
    <context:annotation-config />
    <tx:annotation-driven />
    
@@ -19,8 +19,8 @@
 	-->
    <bean id="dataSource"
 	class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-	p:driverClassName="com.mysql.jdbc.Driver" p:url="jdbc:mysql://eiche.informatik.rwth-aachen.de:3306/ugnm1112g3"
-	p:username="ugnm1112g3" p:password="3vbl3343" />
+	p:driverClassName="com.mysql.jdbc.Driver" p:url="jdbc:mysql://localhost:3306/awgs"
+	p:username="awgs-service" p:password="db4awgs" />
 		
 	<bean id="entityManagerFactory"
 		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
@@ -35,7 +35,7 @@
 	<bean id="jpaAdapter"
 		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter"
 		p:database="MYSQL" p:showSql="true" />
-	<bean id="realtimeModule" class="de.rwth.dbis.ugnm.module.realtime.RealtimeModule" init-method="configure" destroy-method="destroy"/>
+	<bean id="realtimeModule" class="de.rwth.dbis.acis.awgs.module.realtime.RealtimeModule" init-method="configure" destroy-method="destroy"/>
 </beans>
 
 

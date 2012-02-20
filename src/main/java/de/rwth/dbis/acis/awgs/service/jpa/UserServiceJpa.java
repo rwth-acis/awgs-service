@@ -78,7 +78,7 @@ public class UserServiceJpa implements UserService {
 	public User findUser(User user) {
 		User result = null;
 		Query queryFindUser = entityManager.createNamedQuery("User.findUser");
-		queryFindUser.setParameter("login", user.getJid());
+		queryFindUser.setParameter("jid", user.getJid());
 
 		List<User> users = queryFindUser.getResultList();
 		if(users.size() > 0) {
