@@ -16,8 +16,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name="AUTHORS")
 @NamedQueries({ 
-	@NamedQuery(name = "AuthorsAssociation.findAll", query = "SELECT a FROM AuthorsAssociation r ORDER BY a.time"),
-	@NamedQuery(name = "AuthorsAssociation.findById", query = "SELECT a FROM AuthorsAssociation r WHERE a.id=:id"),
+	@NamedQuery(name = "AuthorsAssociation.findAll", query = "SELECT a FROM AuthorsAssociation a ORDER BY a.id"),
+	@NamedQuery(name = "AuthorsAssociation.findById", query = "SELECT a FROM AuthorsAssociation a WHERE a.id=:id"),
 	@NamedQuery(name = "AuthorsAssociation.findByUser", query = "SELECT a FROM AuthorsAssociation a WHERE a.user=:user ORDER BY a.time"),
 	@NamedQuery(name = "AuthorsAssociation.findByItem", query = "SELECT a FROM AuthorsAssociation a where a.item=:item ORDER BY a.time"),
 	@NamedQuery(name = "AuthorsAssociation.find", query = "SELECT a FROM AuthorsAssociation a where a.item=:item and a.user=:user and a.time=:time")
@@ -73,13 +73,13 @@ public class AuthorsAssociation {
 	public void setItem(String item) {
 		this.item = item;
 	}
+	
+	public Item getItemInstance() {
+		return itemInstance;
+	}
 
 	public Date getTime() {
 		return time;
-	}
-
-	public Item getItemInstance() {
-		return itemInstance;
 	}
 	
 	public void setTime(Date time) {

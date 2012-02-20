@@ -14,11 +14,11 @@
     </listener>
 	
 	<servlet>
-        <servlet-name>UGNM Fake Media Detection Game Service</servlet-name>
+        <servlet-name>AWGS Service</servlet-name>
         <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>UGNM Fake Media Detection Game Service</servlet-name>
+        <servlet-name>AWGS Service</servlet-name>
         <url-pattern>/resources/*</url-pattern>
     </servlet-mapping>
 </web-app>
