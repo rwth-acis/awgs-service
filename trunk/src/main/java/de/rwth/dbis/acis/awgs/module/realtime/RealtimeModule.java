@@ -1,6 +1,8 @@
 package de.rwth.dbis.acis.awgs.module.realtime;
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.jivesoftware.smack.Connection;
@@ -16,7 +18,10 @@ import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.packet.VCard;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 
 
@@ -50,6 +55,9 @@ public class RealtimeModule implements PacketListener {
 	private int xmppPort;
 	private String xmppUser;
 	private String xmppPass;
+	
+	@Autowired
+	ItemService itemService;
 
 	Map<String,MultiUserChat> mucs = new HashMap();
 
@@ -272,8 +280,6 @@ public class RealtimeModule implements PacketListener {
 		System.out.println("Realtime Service: message from " + m.getFrom());
 		if(body.startsWith("@awgs-bot")){
 
-
-
 			String response;
 
 			if(body.trim().equals("@awgs-bot help")){
@@ -281,12 +287,47 @@ public class RealtimeModule implements PacketListener {
 				response += "@awgs-bot get items - get list of registered items\n";
 				response += "@awgs-bot get item <id> - get information about registered item\n";
 			}
-			else if(body.startsWith("@awgs-bot get item ")){
-				response = "Items:";
-			}
 			else if(body.trim().equals("@awgs-bot get items")){
-				response = "Item Information: ";
+				
+				List<Item> items = itemService.getAll();
+				Iterator<Item>itemsit = items.iterator();
+				response = "Found " + items.size() + " AWGS items:";
+				while(itemsit.hasNext()){
+					Item i = itemsit.next();
+					response += "\n  - " + i.getId() + ": " + i.getName();
+				}
 			}
+			else if(body.trim().startsWith("@awgs-bot get item ")){
+				String[] tokens = body.trim().split("@awgs-bot get item ");
+				if(tokens.length != 2){
+					response = "Syntax error";
+					response += "Command Syntax: @awgs-bot get item <id>";
+				}
+				else{
+					String id = tokens[1];
+					response = "AWGS Item " + id;
+					Item i = itemService.getById(id);
+					response += "\nName: " + i.getName();
+					response += "\nDescription: " + i.getDescription();
+					response += "\nOwner: " + i.getOwner();
+					response += "\nDocument URL: " + i.getUrl();
+					
+					String status;
+					
+					if(i.getStatus() == 0){
+						status = "draft";
+					}
+					else if(i.getStatus() == 1){
+						status = "submitted";
+					}
+					else{
+						status = "unknown";
+					}
+					
+					response += "\nStatus: " + status;
+				}
+			}
+			
 			else{
 				response = "Send '@awgs-bot help' for a list of commands.";
 			}
