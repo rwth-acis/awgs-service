@@ -43,6 +43,19 @@ import de.rwth.dbis.acis.awgs.service.RoomsService;
 		}
 		
 		@Transactional(readOnly = true)
+		public RoomsAssociation getByRoom(String jid){
+			Query queryFindRoom = entityManager.createNamedQuery("RoomsAssociation.findByRoom");
+			queryFindRoom.setParameter("room", jid);
+
+			List<RoomsAssociation> rooms = queryFindRoom.getResultList();
+			RoomsAssociation result = null;
+			if(rooms.size() > 0) {
+				result = rooms.get(0);
+			}
+			return result;
+		}
+		
+		@Transactional(readOnly = true)
 		public RoomsAssociation get(String jid, String room){
 			Query queryFindRoom = entityManager.createNamedQuery("RoomsAssociation.find");
 			queryFindRoom.setParameter("user", jid);

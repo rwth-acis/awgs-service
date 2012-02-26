@@ -2,7 +2,6 @@ package de.rwth.dbis.acis.awgs.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -12,8 +11,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name = "ITEM")
 @NamedQueries({ 
-	@NamedQuery(name = "Item.findAll", query = "SELECT m FROM Item m"),
-	@NamedQuery(name = "Item.findItem", query = "SELECT m FROM Item m where m.id=:id"),
+	@NamedQuery(name = "Item.findAll", query = "SELECT m FROM Item m ORDER BY m.id DESC"),
+	@NamedQuery(name = "Item.findItem", query = "SELECT m FROM Item m WHERE m.id=:id"),
+	@NamedQuery(name = "Item.findLast", query = "SELECT m FROM Item m ORDER BY m.id DESC LIMIT 0,1"),
 	@NamedQuery(name = "Item.findItemUrl", query = "SELECT m FROM Item m where m.url=:url")
 })
 @XmlRootElement
