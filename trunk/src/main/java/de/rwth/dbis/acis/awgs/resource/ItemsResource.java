@@ -51,14 +51,19 @@ public class ItemsResource {
 
 	@GET
 	@Produces("application/json")
-	public Response getItems() {
-
-		List<Item> items = itemService.getAll();
-		Iterator<Item> itemit = items.iterator();
-
-		JSONObject jo = new JSONObject();
-
+	public Response getItems(JSONObject o) {
 		try {
+			List<Item> items;
+			if(!o.has("query")){
+				items = itemService.getAll();
+			}
+			else {
+				items = itemService.search(o.getString("query"));
+			}
+			Iterator<Item> itemit = items.iterator();
+
+			JSONObject jo = new JSONObject();
+
 			while(itemit.hasNext()){
 				Item i = itemit.next();
 				JSONObject jom = new JSONObject();
@@ -71,13 +76,13 @@ public class ItemsResource {
 				jom.put("owner" , i.getOwner());
 				jo.accumulate("items", jom);
 			}
+			
+			Response.ResponseBuilder r = Response.ok(jo);
+			return CORS.makeCORS(r,_corsHeaders);
 		} catch (JSONException e) {
 			Response.ResponseBuilder r = Response.serverError();
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-
-		Response.ResponseBuilder r = Response.ok(jo);
-		return CORS.makeCORS(r,_corsHeaders);
 	}
 
 	@POST
@@ -90,24 +95,24 @@ public class ItemsResource {
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 		System.err.println("++++++++++++++ AWGS Service - Create Item - authenticated");
-		
+
 		if(o == null || !(o.has("name")) || !(o.has("description")) || !(o.has("url")) || !(o.has("status"))){
 			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-		
+
 		System.err.println("++++++++++++++ AWGS Service - Create Item - parameters complete");
 
 		Item newItem = new Item();
 
 		String lastId = itemService.getLast().getId();
-		
+
 		System.err.println("++++++++++++++ AWGS Service - Create Item - got previous id " + lastId);
 
 		String yid = lastId.split("AWGS-")[1];
-		
+
 		System.err.println("Year and ID: " + yid);
-		
+
 		String[] yidt = yid.split("-"); 
 		int year = Integer.parseInt(yidt[0]);
 		int num = Integer.parseInt(yidt[1]);
@@ -117,7 +122,7 @@ public class ItemsResource {
 		int newyear = year;
 
 		System.err.println("Current Year: " + cyear + ", Prev Year: " + year + ", Prev Num: " + num );
-		
+
 		if(year == cyear){
 			newnum++;
 		}
@@ -125,10 +130,10 @@ public class ItemsResource {
 			newyear = cyear;
 			newnum = 1;
 		}
-		
+
 		String newyearString = String.format("%04d", newyear);
 		String newnumString = String.format("%03d", newnum);
-		
+
 		String newid = "AWGS-" + newyearString + "-" + newnumString;
 
 		System.out.println("Generated new id " + newid);
@@ -137,18 +142,18 @@ public class ItemsResource {
 		newItem.setName(o.getString("name"));
 		newItem.setDescription(o.getString("description"));
 		newItem.setUrl(o.getString("url"));
-		
+
 		String[] authorize = Authentication.parseAuthHeader(auth);
 		String jid = authorize[0];
-		
+
 		newItem.setOwner(jid);
 		newItem.setStatus(o.getInt("status"));
 
 		if(itemService.getByUrl(newItem.getUrl()) == null) {
 			System.out.println("AWGS Service - Create Item " + newItem.getId());
 			itemService.save(newItem);
-			
-			
+
+
 
 			URI location;
 			try {
@@ -156,7 +161,7 @@ public class ItemsResource {
 
 				String msg = "A new AWGS item was added: " + location;
 				realtimeModule.broadcastToRooms(msg, null);
-				
+
 				Response.ResponseBuilder r = Response.created(location);
 				return CORS.makeCORS(r,_corsHeaders);
 
