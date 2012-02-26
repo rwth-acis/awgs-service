@@ -61,6 +61,15 @@ public class ItemServiceJpa implements ItemService {
 		items = query.getResultList();
 		return items;
 	}
+	
+	@Transactional(readOnly = true)
+	public Item getLast() {
+		System.out.println("############### AWGS Item Service - getting last item");
+		Query query = entityManager.createNamedQuery("Item.findLast");
+		List<Item> items = query.getResultList();
+		System.out.println("############### AWGS Item Service - found " + items.size() + " + items.");
+		return items.get(0);
+	}
 
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
 	public boolean save(Item item) {

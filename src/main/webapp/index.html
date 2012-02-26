@@ -14,95 +14,6 @@
 		body { font: 1em "Trebuchet MS", verdana, arial, sans-serif; font-size: 100%; }
 		input, textarea { font-family: Arial; font-size: 125%; padding: 7px; }
 		label { display: block; } 
-
-		.infiniteCarousel {
-		  width: 395px;
-		  position: relative;
-		}
-
-		.infiniteCarousel .wrapper {
-		  width: 315px; /* .infiniteCarousel width - (.wrapper margin-left + .wrapper margin-right) */
-		  overflow: auto;
-		  min-height: 10em;
-		  margin: 0 40px;
-		  position: absolute;
-		  top: 0;
-		}
-
-		.infiniteCarousel ul img {
-		  border: 5px solid #000;
-		  -moz-border-radius: 5px;
-		  -webkit-border-radius: 5px;
-		  
-		}
-
-		.infiniteCarousel .wrapper ul {
-		  width: 9999px;
-		  list-style-image:none;
-		  list-style-position:outside;
-		  list-style-type:none;
-		  margin:0;
-		  padding:0;
-		  position: absolute;
-		  top: 0;
-		}
-
-		.infiniteCarousel ul li {
-		  display:block;
-		  float:left;
-		  padding: 10px;
-		  height: 85px;
-		  width: 85px;
-		}
-
-		.infiniteCarousel ul li img {
-		  display:block;
-		}
-
-		.infiniteCarousel .arrow {
-		  display: block;
-		  height: 37px;
-		  width: 36px;
-		  background: url(media/arrow.png) no-repeat 0 0;
-		  text-indent: -999px;
-		  position: absolute;
-		  top: 37px;
-		  cursor: pointer;
-		}
-
-		.infiniteCarousel .forward {
-		  background-position: 0 0;
-		  right: 0;
-		}
-
-		.infiniteCarousel .back {
-		  background-position: 0 -72px;
-		  left: 0;
-		}
-
-		.infiniteCarousel .forward:hover {
-		  background-position: 0 -36px;
-		}
-
-		.infiniteCarousel .back:hover {
-		  background-position: 0 -108px;
-		}
-		
-		#users {
-			position: absolute;
-			top: 50px;
-			right: 20px;
-		}
-		
-		#rate {
-			width: 600px;
-		}
-		
-		#rate-image {
-			height: 300px;
-		}
-		
-		
 		
 	</style>
 	
@@ -110,89 +21,14 @@
 	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 	<script type="text/javascript" src="./javascript/jquery.base64.js"></script>
 	<script type="text/javascript" src="./javascript/jquery.tooltip.js"></script>
-	<script type="text/javascript" src="./javascript/fmds.js"></script>
+	<script type="text/javascript" src="./javascript/awgs.js"></script>
 	
 	<script type="text/javascript">
 		
 		var fmd;
 		
-		var cmedium;
-		
-		$.fn.infiniteCarousel = function () {
-
-			function repeat(str, num) {
-				return new Array( num + 1 ).join( str );
-			}
-		  
-			return this.each(function () {
-				var $wrapper = $('> div', this).css('overflow', 'hidden'),
-					$slider = $wrapper.find('> ul'),
-					$items = $slider.find('> li'),
-					$single = $items.filter(':first'),
-					
-					singleWidth = $single.outerWidth(), 
-					visible = Math.ceil($wrapper.innerWidth() / singleWidth), // note: doesn't include padding or border
-					currentPage = 1,
-					pages = Math.ceil($items.length / visible);            
-
-
-				// 1. Pad so that 'visible' number will always be seen, otherwise create empty items
-				if (($items.length % visible) != 0) {
-					$slider.append(repeat('<li class="empty" />', visible - ($items.length % visible)));
-					$items = $slider.find('> li');
-				}
-
-				// 2. Top and tail the list with 'visible' number of items, top has the last section, and tail has the first
-				$items.filter(':first').before($items.slice(- visible).clone().addClass('cloned'));
-				$items.filter(':last').after($items.slice(0, visible).clone().addClass('cloned'));
-				$items = $slider.find('> li'); // reselect
-				
-				// 3. Set the left position to the first 'real' item
-				$wrapper.scrollLeft(singleWidth * visible);
-				
-				// 4. paging function
-				function gotoPage(page) {
-					var dir = page < currentPage ? -1 : 1,
-						n = Math.abs(currentPage - page),
-						left = singleWidth * dir * visible * n;
-					
-					$wrapper.filter(':not(:animated)').animate({
-						scrollLeft : '+=' + left
-					}, 500, function () {
-						if (page == 0) {
-							$wrapper.scrollLeft(singleWidth * visible * pages);
-							page = pages;
-						} else if (page > pages) {
-							$wrapper.scrollLeft(singleWidth * visible);
-							// reset back to start position
-							page = 1;
-						} 
-
-						currentPage = page;
-					});                
-					
-					return false;
-				}
-				
-				$wrapper.after('<a class="arrow back">&lt;</a><a class="arrow forward">&gt;</a>');
-				
-				// 5. Bind to the forward and back buttons
-				$('a.back', this).click(function () {
-					return gotoPage(currentPage - 1);                
-				});
-				
-				$('a.forward', this).click(function () {
-					return gotoPage(currentPage + 1);
-				});
-				
-				// create a public interface to move to a specific page
-				$(this).bind('goto', function (event, page) {
-					gotoPage(page);
-				});
-			});  
-		};
-		
 		function updateUsers() {
+			/*
 			fmd.getUsers(function(users){
 				var ol = $("<ol></ol>").attr({"id":"userlist"});
 				for(i in users){
@@ -202,78 +38,52 @@
 				}
 				$("#users").html(ol);
 			});
+			*/
 		}
 		
-		function updateMedia() {
-			fmd.getMedia(function(media){
-				var ul = $("<ul></ul>");
-				var ct = 0;
-				for(i in media){
-					var med = media[i];
+		function updateItems() {
+			console.log("Items listing request");
+			fmd.getItems(function(items){
+				var itemt = "<table>";
+				for(var i=0;i<items.length;i++){
+					var item = items[i];
+					//console.log("Item " + item.id + " - " + item.name);
 					
-					fmd.getMediaRatings(med,function(m, ratings){
-					
-						var titleValue = "URL: " + m.url + "\nDescription: " + m.description +"\nRatings:";
-						
-						var count = ratings.length;
-						var realCount = 0;
-						
-						for(j in ratings){
-							var r = ratings[j];
-							if (r.rating === 1) {
-								realCount++;
-							}
-						}
-						
-						titleValue += realCount + "/" + count;
-						
-						console.log(titleValue);
-						
-						var li =  $("<li></li>").append("<div title='" + titleValue + "'><img src='" + m.url + "' width='75' alt='" + titleValue + "' /></div>").click(function(){		
-							cmedium = m;
-							$("#rate-image").html("<img src='" + m.url + "' height='300' alt='" + titleValue + "' />");
-						});
-						ul.append(li);
-						
-						if(ct == media.length-1){
-							$("#medialist").html(ul);
-							$('.infiniteCarousel').infiniteCarousel();
-						}
-						ct++;
-						console.log("============================================================");
-					});
-				
+					itemt += "<tr><td>" + item.id + "</td><td>" + item.name + "</td><td>" + item.description+ "</td><td><a href='" + item.url + "'>" + item.url + "</a></td><td>" + item.owner + "</td><td>" + item.status + "</td></tr>";
 				}
-				
+				itemt += "</table>";
+				$("#items").html(itemt);
 			});
 		}
 		
 		function updateStatus(){
-			if(fmd.isLoggedIn()){
-				$("#username").html(fmd._uid);
+			if(fmd.authenticated()){
+				$("#username").html(fmd._jid);
 				
 				$("#loginb").hide();
 				$("#logoutb").show();
-				$("#registerb").hide();
 				
 			} else {
 				$("#username").html("");
 				$("#loginb").show();
 				$("#logoutb").hide();
-				$("#registerb").show();
 			}
 		}
 		
 		function init() {
 			
-			fmd = new FmdClient("http://127.0.0.1:8080/ugnm-service/resources/");
+			fmd = new AwgsClient("http://localhost:8080/awgs-service/resources/");
 			
 			// load all users and display in a list
 			updateStatus();
 			updateUsers();
-			updateMedia();
+			updateItems();
 			
-			$("#dialog-login" ).dialog({
+			$( "#loginb").button().click(function() {
+				$("#dialog-login").dialog("open");
+			});
+			
+			$("#dialog-login").dialog({
 				autoOpen: false,
 				height: 200,
 				width: 350,
@@ -281,7 +91,7 @@
 				buttons: {
 					"Login": function() {
 						var that = $(this);
-						fmd.login(
+						fmd.authenticate(
 							$("#login-login").val(),
 							$("#login-password").val(),
 							function(result){
@@ -298,103 +108,42 @@
 				}
 			});
 			
-			$("#signup-login").focusout(function(){
-				fmd.isRegistered($("#signup-login").val(),function(result){
-					if(result){
-						updateTips( "User " + $("#signup-login").val() + " already exists!");
-						$("#signup-login").addClass( "ui-state-error" );
-					} else {
-						updateTips( "Login " + $("#signup-login").val() + " available.");
-						$("#signup-login").removeClass( "ui-state-error" );
-					}
-				});
-			});
-			
-			$( "#dialog-signup" ).dialog({
-				autoOpen: false,
-				height: 250,
-				width: 450,
-				modal: true,
-				buttons: {
-					"Sign Up": function() {
-					
-						var that = $(this);
-						var bValid = true;
-						
-						$("#signup-name").removeClass("ui-state-error");
-						$("#signup-login").removeClass("ui-state-error");
-						$("#signup-password").removeClass("ui-state-error");
-						
-						bValid = bValid && checkLength( $("#signup-name"), "name", 6, 80 );
-						bValid = bValid && checkLength( $("#signup-login"), "login", 6, 80 );
-						bValid = bValid && checkLength( $("#signup-password"), "password", 6, 20 );
-
-						bValid = bValid && checkRegexp( $("#signup-name"), /^[A-Za-z]([A-Za-z ])+$/i, "Username may consist of A-Z, a-z, spaces, and underscores, and must begin with a letter." );
-						bValid = bValid && checkRegexp( $("#signup-login"), /^[a-z]([0-9a-z_])+$/i, "Login may consist of a-z, 0-9, underscores, begin with a letter." );
-						bValid = bValid && checkRegexp( $("#signup-password"), /^([0-9a-zA-Z])+$/, "Password field only allow : a-z 0-9" );
-
-						if ( bValid ) {
-							
-							// POST form data to resource /users
-							fmd.signup( $("#signup-login").val(), $("#signup-name").val(), $("#signup-password").val(), function(result){
-								if(result.status == "created"){
-									updateTips( "User " + $("#signup-login").val() + " successfully created");
-									that.dialog("close");
-									updateUsers();
-								} else if( result.status == "conflict"){
-									updateTips( "User " + $("#signup-login").val() + " already exists!");
-									$("#signup-login").addClass( "ui-state-error" );
-								}
-							});
-						}
-					},
-					Cancel: function() {
-						$( this ).dialog( "close" );
-					}
-				},
-				close: function() {
-					$("#signup-name").removeClass("ui-state-error");
-					$("#signup-login").removeClass("ui-state-error");
-					$("#signup-password").removeClass("ui-state-error");
-				}
-			});
-			
-			$( "#loginb" ).button().click(function() {
-				$( "#dialog-login" ).dialog("open");
-			});
-			
-			$( "#registerb" ).button().click(function() {
-				$( "#dialog-signup" ).dialog("open");
-			});
-			
 			$( "#logoutb" ).button().click(function() {
 				fmd.logout();
 				updateStatus();
 			});
 			
-			$( "#fakeb" ).button().click(function() {
-				console.log(cmedium.id + " is a Fake");
-				fmd.rateMedium(cmedium,0,function(result){
-					if(result.status == "rated"){
-						updateMedia();
-						updateUsers();
-					} else {
-						alert(result.status);
-					}
-				});
+			$( "#registerb" ).button().click(function() {
+				$( "#dialog-register" ).dialog("open");
 			});
 			
-			$( "#trueb" ).button().click(function() {
-				console.log(cmedium.id + " is Authentic");
-				fmd.rateMedium(cmedium,1,function(result){
-					if(result.status == "rated"){
-						updateMedia();
-						updateUsers();
-					} else {
-						alert(result.status);
+			$("#dialog-register").dialog({
+				autoOpen: false,
+				height: 450,
+				width: 350,
+				modal: true,
+				buttons: {
+					"Register": function() {
+						var that = $(this);
+						
+						var item = {
+								name: $("#register-name").val(),
+							  description: $("#register-description").val(),
+							  url: $("#register-url").val(),
+							  status: $("#register-status").val()
+						}
+						fmd.createItem(item,function(result){
+							console.log("Created item " + result);
+							updateItems();
+							that.dialog("close");
+						});
+					},
+					Cancel: function() {
+						$(this).dialog("close");
 					}
-				});
+				}
 			});
+			
 			
 		}
 		
@@ -432,38 +181,31 @@
 </head>
 
 <body>
-<h2>UGNM Fake Media Detection Game</h2>
+<div id="main">
+<h2>The ACIS Working Group Series</h2>
+
+A service for managing the ACIS Working Group Series, a series of working papers created by members of the ACIS working group at Chair of Computer Science 5 - Databases &amp; Information Systems, RWTH Aachen University, Germany.
+
+<br/><br/>
 
 <div id="profile">
 	<span id="username"></span>
-	<span id="achievements"></span>
 	<span id="profile-buttons">
 		<button id="loginb">Login</button>
 		<button id="logoutb">Logout</button>
-		<button id="registerb">Register</button>
+		<button id="registerb">Register Item</button>
 	</span>
 </div>
 
 <br/>
 
-<div id="rate">
-	<center>
-	<div id="rate-image"></div><br/>
-	<button id="trueb" >True</button>
-	<button id="fakeb" >Fake</button>
-	</center>
-</div>
-
-<div id="media">
-	<div class="infiniteCarousel">
-      <div id="medialist" class="wrapper">
-        
-      </div>
-    </div>
+<div id="items">
+	
 </div>
 
 <div id="users"></div>
 
+</div>
 <div id="dialog-login" title="Login">
 	<form>
 		<fieldset>
@@ -475,36 +217,18 @@
 	</form>
 </div>
 
-<div id="dialog-signup" title="Sign Up">
-	<p id="signup-tips" class="validateTips">All form fields are required.</p>
+<div id="dialog-register" title="Register">
+	Register a new ACIS Working Group Series Item.
 	<form>
 		<fieldset>
-			<table>
-				<tr>
-					<td>
-						<label for="signup-login">Login:</label>
-					</td>
-					<td>
-						<input type="text" id="signup-login" value="" class="text ui-widget-content ui-corner-all" />
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<label for="signup-name">Name:</label>
-					</td>
-					<td>	
-						<input type="text" id="signup-name" class="text ui-widget-content ui-corner-all" />
-					</td>
-				</tr>
-				<tr>
-					<td>
-						<label for="signup-password">Pass:</label>
-					</td>
-					<td>
-						<input type="password" id="signup-password" value="" class="text ui-widget-content ui-corner-all" />
-					</td>
-				</tr>
-			</table>
+			<label for="">Name:</label>
+			<input type="text" id="register-name" value="" class="text ui-widget-content ui-corner-all" /><br/>
+			<label for="register-description">Description:</label>
+			<input type="text" id="register-description" value="" class="text ui-widget-content ui-corner-all" /><br/>
+			<label for="register-url">URL:</label>
+			<input type="text" id="register-url" value="" class="text ui-widget-content ui-corner-all" /><br/>
+			<label for="register-status">Status:</label>
+			<input type="text" id="register-status" value="" class="text ui-widget-content ui-corner-all" /><br/>
 		</fieldset>
 	</form>
 </div>

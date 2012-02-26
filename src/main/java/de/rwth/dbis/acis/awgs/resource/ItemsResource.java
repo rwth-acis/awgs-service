@@ -2,9 +2,9 @@ package de.rwth.dbis.acis.awgs.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Vector;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -13,7 +13,6 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -22,11 +21,12 @@ import javax.ws.rs.core.UriInfo;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.module.realtime.RealtimeModule;
 import de.rwth.dbis.acis.awgs.service.ItemService;
+import de.rwth.dbis.acis.awgs.util.Authentication;
 import de.rwth.dbis.acis.awgs.util.CORS;
 
 @Path("/items")
@@ -35,9 +35,12 @@ public class ItemsResource {
 
 	@Autowired
 	ItemService itemService;
-	
+
+	@Autowired
+	RealtimeModule realtimeModule;
+
 	@Context UriInfo uriInfo;
-	
+
 	private String _corsHeaders;
 
 	@OPTIONS
@@ -45,11 +48,11 @@ public class ItemsResource {
 		_corsHeaders = requestH;
 		return CORS.makeCORS(Response.ok(), requestH);
 	}
-	
+
 	@GET
 	@Produces("application/json")
 	public Response getItems() {
-		
+
 		List<Item> items = itemService.getAll();
 		Iterator<Item> itemit = items.iterator();
 
@@ -59,12 +62,13 @@ public class ItemsResource {
 			while(itemit.hasNext()){
 				Item i = itemit.next();
 				JSONObject jom = new JSONObject();
-				
+
 				jom.put("id", i.getId());
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
 				jom.put("url", i.getUrl());
 				jom.put("status", i.getStatus());
+				jom.put("owner" , i.getOwner());
 				jo.accumulate("items", jom);
 			}
 		} catch (JSONException e) {
@@ -75,45 +79,99 @@ public class ItemsResource {
 		Response.ResponseBuilder r = Response.ok(jo);
 		return CORS.makeCORS(r,_corsHeaders);
 	}
-	
+
 	@POST
-    @Consumes("application/json")
-    public Response putItem(JSONObject o) throws JSONException {
-        
-		if(o == null || !(o.has("url"))){
-			throw new WebApplicationException(Status.BAD_REQUEST);
+	@Consumes("application/json")
+	public Response putItem(@HeaderParam("authorization") String auth, JSONObject o) throws JSONException {
+
+		System.err.println("++++++++++++++ AWGS Service - Create Item");
+		if(!realtimeModule.isAuthenticated(auth)){
+			Response.ResponseBuilder r = Response.status(Status.UNAUTHORIZED);
+			return CORS.makeCORS(r,_corsHeaders);
+		}
+		System.err.println("++++++++++++++ AWGS Service - Create Item - authenticated");
+		
+		if(o == null || !(o.has("name")) || !(o.has("description")) || !(o.has("url")) || !(o.has("status"))){
+			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
+			return CORS.makeCORS(r,_corsHeaders);
+		}
+		
+		System.err.println("++++++++++++++ AWGS Service - Create Item - parameters complete");
+
+		Item newItem = new Item();
+
+		String lastId = itemService.getLast().getId();
+		
+		System.err.println("++++++++++++++ AWGS Service - Create Item - got previous id " + lastId);
+
+		String yid = lastId.split("AWGS-")[1];
+		
+		System.err.println("Year and ID: " + yid);
+		
+		String[] yidt = yid.split("-"); 
+		int year = Integer.parseInt(yidt[0]);
+		int num = Integer.parseInt(yidt[1]);
+
+		int cyear = Calendar.getInstance().get(Calendar.YEAR);
+		int newnum = num;
+		int newyear = year;
+
+		System.err.println("Current Year: " + cyear + ", Prev Year: " + year + ", Prev Num: " + num );
+		
+		if(year == cyear){
+			newnum++;
 		}
 		else{
-        	Item newItem = new Item();
-        	String murl = (String) o.get("url");
-        	newItem.setUrl(murl);
-        	
-        	if(o.has("description")){
-        		newItem.setDescription((String) o.get("description"));
-        	}
-        	
-        	if(itemService.getByUrl(murl) == null) {
-        		itemService.save(newItem);
-        		
-        		Item mfdb = itemService.getByUrl(murl);
-        		
-        		URI location;
-				try {
-					location = new URI(uriInfo.getAbsolutePath().toASCIIString() + "/" + mfdb.getId());
-					
-					Response.ResponseBuilder r = Response.created(location);
-					return CORS.makeCORS(r,_corsHeaders);
-					
-					
-				} catch (URISyntaxException e) {
-					throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
-				}
-        	}
-        	else{
-        		throw new WebApplicationException(Status.CONFLICT);
-        	}
-        }
-    }
-	
+			newyear = cyear;
+			newnum = 1;
+		}
+		
+		String newyearString = String.format("%04d", newyear);
+		String newnumString = String.format("%03d", newnum);
+		
+		String newid = "AWGS-" + newyearString + "-" + newnumString;
+
+		System.out.println("Generated new id " + newid);
+
+		newItem.setId(newid);
+		newItem.setName(o.getString("name"));
+		newItem.setDescription(o.getString("description"));
+		newItem.setUrl(o.getString("url"));
+		
+		String[] authorize = Authentication.parseAuthHeader(auth);
+		String jid = authorize[0];
+		
+		newItem.setOwner(jid);
+		newItem.setStatus(o.getInt("status"));
+
+		if(itemService.getByUrl(newItem.getUrl()) == null) {
+			System.out.println("AWGS Service - Create Item " + newItem.getId());
+			itemService.save(newItem);
+			
+			
+
+			URI location;
+			try {
+				location = new URI(uriInfo.getAbsolutePath().toASCIIString() + "/" + newItem.getId());
+
+				String msg = "A new AWGS item was added: " + location;
+				realtimeModule.broadcastToRooms(msg, null);
+				
+				Response.ResponseBuilder r = Response.created(location);
+				return CORS.makeCORS(r,_corsHeaders);
+
+
+			} catch (URISyntaxException e) {
+				Response.ResponseBuilder r = Response.serverError();
+				return CORS.makeCORS(r,_corsHeaders);
+			}
+		}
+		else{
+			Response.ResponseBuilder r = Response.status(Status.CONFLICT);
+			return CORS.makeCORS(r,_corsHeaders);
+		}
+
+	}
+
 }
 

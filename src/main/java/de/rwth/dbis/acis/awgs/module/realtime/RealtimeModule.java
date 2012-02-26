@@ -13,15 +13,19 @@ import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Message.Type;
 import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.packet.VCard;
+import org.jivesoftware.smackx.packet.XHTMLExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.entity.RoomsAssociation;
 import de.rwth.dbis.acis.awgs.service.ItemService;
+import de.rwth.dbis.acis.awgs.service.RoomsService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 
 
@@ -55,11 +59,14 @@ public class RealtimeModule implements PacketListener {
 	private int xmppPort;
 	private String xmppUser;
 	private String xmppPass;
-	
+
 	@Autowired
 	ItemService itemService;
 
-	Map<String,MultiUserChat> mucs = new HashMap();
+	@Autowired
+	RoomsService roomsService;
+
+	Map<String,MultiUserChat> mucs = new HashMap<String,MultiUserChat>();
 
 	public void configure() {
 
@@ -182,7 +189,7 @@ public class RealtimeModule implements PacketListener {
 		try {
 			xc.login(getXmppUser(), getXmppPass());
 			System.out.println("XMPP Info: Authenticated service at XMPP host");
-
+			initRooms();
 		} catch (XMPPException e) {
 			System.err.println("XMPP Error: Authentication at XMPP host failed!");
 			throw e;
@@ -191,7 +198,8 @@ public class RealtimeModule implements PacketListener {
 		PacketFilter filter = new PacketTypeFilter(Message.class);
 		xc.addPacketListener(this,filter);
 
-
+		
+		
 		//testSendMessageToRoom("awgs-test@muc.role.dbis.rwth-aachen.de", "Something I ever wanted to say...");
 	}
 
@@ -238,7 +246,39 @@ public class RealtimeModule implements PacketListener {
 	}
 
 	public void initRooms(){
+		System.out.println("1111111111111111111111 Entered initRooms()...");
+		List<RoomsAssociation> rooms = roomsService.getAll();
+		Iterator<RoomsAssociation> riter = rooms.iterator();
 
+		while(riter.hasNext()){
+			RoomsAssociation room = riter.next();
+			try {
+				joinRoom(room.getRoom(),room.getNick());
+				System.out.println("Joined room " + room.getRoom() + " as '" + room.getNick() + "'.");
+				
+				System.out.println("Sent welcome message.");
+			} catch (XMPPException e) {
+				System.err.println("Could not join room " + room.getRoom());
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public void broadcastToRooms(String body, String html){
+		Iterator<String> mit = mucs.keySet().iterator();
+		while (mit.hasNext()){
+			String roomjid = mit.next();
+			sendMessage(roomjid, Type.groupchat, body, html);
+			System.out.println("Sent message to room " + roomjid);
+		}
+	}
+
+	public void joinRoom(String jid, String nick) throws XMPPException{
+		MultiUserChat m = getRoom(jid);
+		if(m!=null & !m.isJoined()){
+			m.join(nick);
+			sendMessage(jid, Type.groupchat, "Hi, this is the ACIS Working Group Series Bot.\nSend '@awgs-bot help' for a list of commands.",null);
+		}
 	}
 
 	/**
@@ -260,7 +300,6 @@ public class RealtimeModule implements PacketListener {
 		else{
 
 			RoomInfo r = null;
-
 			r = MultiUserChat.getRoomInfo(xc, jid);
 			// if the respective room already exists, return a MUC object to interact.
 			MultiUserChat muc = new MultiUserChat(xc, jid);
@@ -281,6 +320,7 @@ public class RealtimeModule implements PacketListener {
 		if(body.startsWith("@awgs-bot")){
 
 			String response;
+			String htmlResponse = "";
 
 			if(body.trim().equals("@awgs-bot help")){
 				response = "Command list:\n";
@@ -288,13 +328,15 @@ public class RealtimeModule implements PacketListener {
 				response += "@awgs-bot get item <id> - get information about registered item\n";
 			}
 			else if(body.trim().equals("@awgs-bot get items")){
-				
+
 				List<Item> items = itemService.getAll();
 				Iterator<Item>itemsit = items.iterator();
 				response = "Found " + items.size() + " AWGS items:";
+				htmlResponse = "<b>ACIS Working Group Series</b><br/><br/>";
 				while(itemsit.hasNext()){
 					Item i = itemsit.next();
 					response += "\n  - " + i.getId() + ": " + i.getName();
+					htmlResponse += "<br/>" + i.getId() + " - " + i.getName();
 				}
 			}
 			else if(body.trim().startsWith("@awgs-bot get item ")){
@@ -311,9 +353,9 @@ public class RealtimeModule implements PacketListener {
 					response += "\nDescription: " + i.getDescription();
 					response += "\nOwner: " + i.getOwner();
 					response += "\nDocument URL: " + i.getUrl();
-					
+
 					String status;
-					
+
 					if(i.getStatus() == 0){
 						status = "draft";
 					}
@@ -323,18 +365,18 @@ public class RealtimeModule implements PacketListener {
 					else{
 						status = "unknown";
 					}
-					
+
 					response += "\nStatus: " + status;
 				}
 			}
-			
+
 			else{
 				response = "Send '@awgs-bot help' for a list of commands.";
 			}
 
 			String to = null;
 			Message.Type type = m.getType();
-			
+
 			if(m.getType().equals(Message.Type.groupchat)){
 				//System.out.println("Realtime Service: detected MUC message");
 				to = from.split("/")[0];
@@ -345,27 +387,30 @@ public class RealtimeModule implements PacketListener {
 			}
 
 			//System.out.println("Realtime Service: sending reply to " + to);
-			sendMessage(to, type, response);
+
+			sendMessage(to, type, response, htmlResponse);
 			//System.out.println("Realtime Service: sent reply to " + to);
 
 		}
 	}
 
-	public void sendMessage(String to, Message.Type t, String body){
+	public void sendMessage(String to, Message.Type t, String body, String html){
 		Message resp = new Message();
 		resp.setTo(to);
 		resp.setType(t);
 		resp.setBody(body);
 
-		/*
-		XHTMLExtension e = new XHTMLExtension();
-		String xbody = "<body xmlns='http://www.w3.org/1999/xhtml'>";
-		xbody +="<a href='http://nillenposse.de'>Nillenposse</a>";
-		xbody += body;
-		xbody +="</body>";
-		e.addBody(xbody);
-		resp.addExtension(e);
-		 */
+
+		if(null != html && !html.equals("")){
+			XHTMLExtension e = new XHTMLExtension();
+
+			String xbody = "<body xmlns='http://www.w3.org/1999/xhtml'>";
+			xbody += html;
+			xbody +="</body>";
+			System.out.println("HTML: " + xbody);
+			e.addBody(xbody);
+			resp.addExtension(e);
+		}
 		xc.sendPacket(resp);
 	}
 
