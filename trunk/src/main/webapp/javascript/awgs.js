@@ -116,7 +116,7 @@ AwgsClient.prototype.getUser = function(){
 		console.log(this._jidcred);
 		var dec = $.base64.decode(this._jidcred);
 		console.log("Decoded XMPP Credentials: " + dec);
-		return dec;
+		return dec.split(":")[0];
 		
 	}
 	return null;
