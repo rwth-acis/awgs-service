@@ -13,6 +13,7 @@ import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -28,6 +29,8 @@ import de.rwth.dbis.acis.awgs.module.realtime.RealtimeModule;
 import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 import de.rwth.dbis.acis.awgs.util.CORS;
+
+
 
 @Path("/items")
 @Component
@@ -51,14 +54,14 @@ public class ItemsResource {
 
 	@GET
 	@Produces("application/json")
-	public Response getItems(JSONObject o) {
+	public Response getItems(@QueryParam(value="search") String query) {
 		try {
 			List<Item> items;
-			if(!o.has("query")){
+			if(null == query || query.equals("")){
 				items = itemService.getAll();
 			}
 			else {
-				items = itemService.search(o.getString("query"));
+				items = itemService.search(query);
 			}
 			Iterator<Item> itemit = items.iterator();
 
@@ -75,7 +78,7 @@ public class ItemsResource {
 				jom.put("url", i.getUrl());
 				jom.put("status", i.getStatus());
 				jom.put("owner" , i.getOwner());
-				jom.put("lastupdate",i.getLastUpdate());
+				jom.put("lastupdate",i.getLastUpdate().toGMTString());
 				jo.accumulate("items", jom);
 			}
 			

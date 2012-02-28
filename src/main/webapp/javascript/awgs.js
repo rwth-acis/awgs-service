@@ -66,10 +66,9 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 	// as HTTP auth header.
 	var resource = this._authResource;
 	var that = this;
-	that._jid = jid;
 	
 	// use helper function to create credentials as base64 encoding for HTTP auth header
-	var credentials = __make_base_auth(jid,password);
+	var hash = __make_base_auth(jid,password);
 	
 	// here, you see a first example of an AJAX request done with the help of jQuery.
 	$.ajax({
@@ -78,7 +77,7 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 		
 		// set HTTP auth header before sending request
 		beforeSend: function(xhr){
-			xhr.setRequestHeader("Authorization", credentials);
+			xhr.setRequestHeader("Authorization", "Basic " + hash);
 		},
 		
 		// this is one of the callbacks to be triggered on successful processing 
@@ -86,12 +85,12 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 		// successful authentication.
 		success: function(){
 		
-			that._jidcred = credentials;
+			that._jidcred = hash;
 			
 			// store credentials in local storage
 			// Local Storage version
 			
-			localStorage.setItem("jidcred",credentials);
+			localStorage.setItem("jidcred",hash);
 			
 			// Cookies version
 			
@@ -111,6 +110,17 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 		}
 	});
 };
+
+AwgsClient.prototype.getUser = function(){
+	if(typeof this._jidcred !== 'undefined'){
+		console.log(this._jidcred);
+		var dec = $.base64.decode(this._jidcred);
+		console.log("Decoded XMPP Credentials: " + dec);
+		return dec;
+		
+	}
+	return null;
+}
 
 /**
  * Logs out currently logged in user. Effectively, credentials in local storage and available as fields
@@ -149,6 +159,14 @@ AwgsClient.prototype.getItems = function(callback){
 	});
 };
 
+AwgsClient.prototype.searchItems = function(query, callback){
+	var resource = this._itemsResource + "?search=" + query;
+	
+	$.get(resource, function(data) {
+		callback(data.items);		
+	});
+};
+
 AwgsClient.prototype.getItem = function(id, callback){
 	var resource = this._itemsResource + "/" + id;
 	
@@ -157,13 +175,46 @@ AwgsClient.prototype.getItem = function(id, callback){
 	});
 };
 
-AwgsClient.prototype.getItems = function(callback){
-	var resource = this._itemsResource;
+AwgsClient.prototype.deleteItem = function(id, callback){	
+	if(!this.authenticated){
+		alert("Not logged in");
+	} 
+	var resource = this._itemsResource + id;
 	
-	$.get(resource, function(data) {
-		callback(data.items);		
+	var that = this;
+	
+	// do AJAX call to Web Service using jQuery.ajax
+	$.ajax({
+		url: resource,
+		type: "DELETE",
+		beforeSend: function(xhr){
+			xhr.setRequestHeader("Authorization", "Basic " + that._jidcred);
+		},
+		// process result in case of success and feed result to callback function passed by developer
+		success: function(uri){
+			var result = {};
+			result.status = "success";
+			result.uri = uri;
+			
+			callback(result);
+		},
+		// process result in case of different HTTP statuses and feed result to callback function passed by developer
+		statusCode: {
+			401: function(){
+				callback({status:"unauthorized"});
+			},
+			404: function(){
+				callback({status:"notfound"});
+			},
+			500: function(){
+				callback({status:"servererror"});
+			},
+			
+		},
+		contentType: "application/json",
+		cache: false
 	});
-}
+};
 
 AwgsClient.prototype.createItem = function(m, callback){
 	
@@ -180,7 +231,7 @@ AwgsClient.prototype.createItem = function(m, callback){
 		type: "POST",
 		data: JSON.stringify(m), // JSON data must be transformed to a String representation
 		beforeSend: function(xhr){
-			xhr.setRequestHeader("Authorization", that._jidcred);
+			xhr.setRequestHeader("Authorization", "Basic " + that._jidcred);
 		},
 		// process result in case of success and feed result to callback function passed by developer
 		success: function(uri){
@@ -212,7 +263,7 @@ AwgsClient.prototype.createItem = function(m, callback){
 		contentType: "application/json",
 		cache: false
 	});
-}
+};
 
 //TODO: add further library functions
 
@@ -220,7 +271,13 @@ AwgsClient.prototype.createItem = function(m, callback){
 // HTTP basic authentication
 function __make_base_auth(jid, password) {
 	var tok = jid + ':' + password;
-	var hash = $.base64.encode(tok);
-	var result = "Basic " + hash;
-	return result;
+	return $.base64.encode(tok);
 }
+
+//Private helper function to create Base64 encoded credentials as needed for
+//HTTP basic authentication
+function __get_base_auth(b64) {
+	var org = $.base64.decode(tok);
+	return org;
+}
+

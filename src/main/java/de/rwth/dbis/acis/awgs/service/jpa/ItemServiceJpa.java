@@ -123,6 +123,8 @@ public class ItemServiceJpa implements ItemService {
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
 	public String getNextItemId(){
 		String lastId = getLast().getId();
 
