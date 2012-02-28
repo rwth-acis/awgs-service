@@ -32,7 +32,7 @@
       top:0;
       right:0;
       left:0;
-      font-size: 9pt;
+      font-size: 10pt;
       text-align:right;
       vertical-align:middle;
       background:#000;
@@ -44,6 +44,11 @@
    
    #loginb, #logoutb {
    	 color: #fff;
+   	 cursor: pointer;
+   }
+   
+   #dialog-login, #dialog-register {
+   	font-size: 10pt;
    }
    
    #username {
@@ -123,11 +128,11 @@
 			
 			$("#dialog-login").dialog({
 				autoOpen: false,
-				height: 230,
-				width: 400,
+				height: 300,
+				width: 460,
 				modal: true,
 				buttons: {
-					"Login": function() {
+					"Authenticate": function() {
 						var that = $(this);
 						awgs.authenticate(
 							$("#login-login").val(),
@@ -157,8 +162,8 @@
 			
 			$("#dialog-register").dialog({
 				autoOpen: false,
-				height: 440,
-				width: 400,
+				//height: 500,
+				width: 460,
 				modal: true,
 				buttons: {
 					"Register": function() {
@@ -253,9 +258,9 @@ A service for managing the ACIS Working Group Series, a series of working papers
 <div id="dialog-login" title="Login">
 	<form>
 		<fieldset>
-			<label for="login-login">Login:</label>
+			<label for="login-login">JID:</label>
 			<input type="text" id="login-login" value="" size="50" class="text ui-widget-content ui-corner-all" /><br/>
-			<label for="login-password">Pass:</label>
+			<label for="login-password">Password:</label>
 			<input type="password" id="login-password" size="50" value="" class="text ui-widget-content ui-corner-all" /><br/>
 		</fieldset>
 	</form>
