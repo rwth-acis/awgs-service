@@ -299,7 +299,9 @@ public class RealtimeModule implements PacketListener {
 		}
 		else{
 
+			@SuppressWarnings("unused")
 			RoomInfo r = null;
+			
 			r = MultiUserChat.getRoomInfo(xc, jid);
 			// if the respective room already exists, return a MUC object to interact.
 			MultiUserChat muc = new MultiUserChat(xc, jid);

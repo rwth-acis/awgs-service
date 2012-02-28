@@ -1,7 +1,5 @@
 package de.rwth.dbis.acis.awgs.resource;
 
-import java.text.DateFormat;
-
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;

@@ -29,6 +29,7 @@ import de.rwth.dbis.acis.awgs.service.RoomsService;
 			return entityManager;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Transactional(readOnly = true)
 		public RoomsAssociation getById(String id){
 			Query queryFindRoom = entityManager.createNamedQuery("RoomsAssociation.findById");
@@ -42,6 +43,7 @@ import de.rwth.dbis.acis.awgs.service.RoomsService;
 			return result;
 		}
 		
+		@SuppressWarnings("unchecked")
 		@Transactional(readOnly = true)
 		public RoomsAssociation getByRoom(String jid){
 			Query queryFindRoom = entityManager.createNamedQuery("RoomsAssociation.findByRoom");
