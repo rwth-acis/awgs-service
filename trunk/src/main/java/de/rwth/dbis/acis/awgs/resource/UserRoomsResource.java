@@ -39,6 +39,7 @@ public class UserRoomsResource {
 	@Autowired
 	RealtimeModule realtimeModule;
 
+	@SuppressWarnings("unused")
 	private String _corsHeaders;
 
 	@OPTIONS

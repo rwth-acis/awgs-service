@@ -28,6 +28,7 @@ public class ItemServiceJpa implements ItemService {
 		return entityManager;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public Item getById(String id){
 		Query queryFindItem = entityManager.createNamedQuery("Item.findItem");
@@ -41,6 +42,7 @@ public class ItemServiceJpa implements ItemService {
 		return result;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public Item getByUrl(String url){
 		Query queryFindItem = entityManager.createNamedQuery("Item.findItemUrl");
