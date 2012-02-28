@@ -246,7 +246,6 @@ public class RealtimeModule implements PacketListener {
 	}
 
 	public void initRooms(){
-		System.out.println("1111111111111111111111 Entered initRooms()...");
 		List<RoomsAssociation> rooms = roomsService.getAll();
 		Iterator<RoomsAssociation> riter = rooms.iterator();
 
@@ -277,7 +276,7 @@ public class RealtimeModule implements PacketListener {
 		MultiUserChat m = getRoom(jid);
 		if(m!=null & !m.isJoined()){
 			m.join(nick);
-			sendMessage(jid, Type.groupchat, "Hi, this is the ACIS Working Group Series Bot.\nSend '@awgs-bot help' for a list of commands.",null);
+			sendMessage(jid, Type.groupchat, "Hi, this is the ACIS Working Group Series Bot.\nSend '@awgs help' for a list of commands.",null);
 		}
 	}
 

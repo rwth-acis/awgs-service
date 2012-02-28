@@ -10,7 +10,7 @@ import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @Entity
-@Table(name="ROOMS")
+@Table(name="ROOM")
 @NamedQueries({ 
 	@NamedQuery(name = "RoomsAssociation.findAll", query = "SELECT a FROM RoomsAssociation a ORDER BY a.id"),
 	@NamedQuery(name = "RoomsAssociation.findById", query = "SELECT a FROM RoomsAssociation a WHERE a.id=:id"),
