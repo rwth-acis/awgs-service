@@ -1,5 +1,7 @@
 package de.rwth.dbis.acis.awgs.resource;
 
+import java.text.DateFormat;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -71,6 +73,7 @@ public class ItemResource {
 		body += "<label for='description' style='font-weight:bold;'>Description:</label><div id='description'>" + i.getDescription() + "</div>";
 		body += "<label for='url' style='font-weight:bold;'>Document URL:</label><div id='url'><a href='" + i.getUrl() + "'>" + i.getUrl() + "</a></div>";
 		body += "<label for='status' style='font-weight:bold;'>Status:</label><div id='status'>" + i.getStatus()+ "</div>";
+		body += "<label for='lastup' style='font-weight:bold;'>Last Update:</label><div id='lastup'>" + i.getLastUpdate().toGMTString() + "</div>";
 		
 		String html = HTMLHelper.getHtmlDoc(title,body);
 		

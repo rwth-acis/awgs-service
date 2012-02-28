@@ -2,7 +2,7 @@ package de.rwth.dbis.acis.awgs.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -67,13 +67,15 @@ public class ItemsResource {
 			while(itemit.hasNext()){
 				Item i = itemit.next();
 				JSONObject jom = new JSONObject();
-
+				
+				jom.put("resource", uriInfo.getAbsolutePath() + i.getId());
 				jom.put("id", i.getId());
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
 				jom.put("url", i.getUrl());
 				jom.put("status", i.getStatus());
 				jom.put("owner" , i.getOwner());
+				jom.put("lastupdate",i.getLastUpdate());
 				jo.accumulate("items", jom);
 			}
 			
@@ -89,54 +91,19 @@ public class ItemsResource {
 	@Consumes("application/json")
 	public Response putItem(@HeaderParam("authorization") String auth, JSONObject o) throws JSONException {
 
-		System.err.println("++++++++++++++ AWGS Service - Create Item");
 		if(!realtimeModule.isAuthenticated(auth)){
 			Response.ResponseBuilder r = Response.status(Status.UNAUTHORIZED);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-		System.err.println("++++++++++++++ AWGS Service - Create Item - authenticated");
 
 		if(o == null || !(o.has("name")) || !(o.has("description")) || !(o.has("url")) || !(o.has("status"))){
 			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 
-		System.err.println("++++++++++++++ AWGS Service - Create Item - parameters complete");
-
 		Item newItem = new Item();
 
-		String lastId = itemService.getLast().getId();
-
-		System.err.println("++++++++++++++ AWGS Service - Create Item - got previous id " + lastId);
-
-		String yid = lastId.split("AWGS-")[1];
-
-		System.err.println("Year and ID: " + yid);
-
-		String[] yidt = yid.split("-"); 
-		int year = Integer.parseInt(yidt[0]);
-		int num = Integer.parseInt(yidt[1]);
-
-		int cyear = Calendar.getInstance().get(Calendar.YEAR);
-		int newnum = num;
-		int newyear = year;
-
-		System.err.println("Current Year: " + cyear + ", Prev Year: " + year + ", Prev Num: " + num );
-
-		if(year == cyear){
-			newnum++;
-		}
-		else{
-			newyear = cyear;
-			newnum = 1;
-		}
-
-		String newyearString = String.format("%04d", newyear);
-		String newnumString = String.format("%03d", newnum);
-
-		String newid = "AWGS-" + newyearString + "-" + newnumString;
-
-		System.out.println("Generated new id " + newid);
+		String newid = itemService.getNextItemId();
 
 		newItem.setId(newid);
 		newItem.setName(o.getString("name"));
@@ -148,9 +115,9 @@ public class ItemsResource {
 
 		newItem.setOwner(jid);
 		newItem.setStatus(o.getInt("status"));
+		newItem.setLastUpdate(new Date());
 
 		if(itemService.getByUrl(newItem.getUrl()) == null) {
-			System.out.println("AWGS Service - Create Item " + newItem.getId());
 			itemService.save(newItem);
 
 
