@@ -1,5 +1,6 @@
 package de.rwth.dbis.acis.awgs.service.jpa;
 
+import java.util.Calendar;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -61,6 +62,7 @@ public class ItemServiceJpa implements ItemService {
 		items = query.getResultList();
 		return items;
 	}
+	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public List<Item> search(String query){
@@ -71,6 +73,7 @@ public class ItemServiceJpa implements ItemService {
 		return items;
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
 	public Item getLast() {
 		Query query = entityManager.createNamedQuery("Item.findLast");
@@ -86,12 +89,14 @@ public class ItemServiceJpa implements ItemService {
 		
 		return true;
 	}
+	
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
 	public boolean update(Item item) {
 		entityManager.merge(item);
 		entityManager.flush();
 		return true;
 	}
+	
 	@Transactional(readOnly=false, propagation=Propagation.REQUIRED)
 	public boolean delete(Item item) {
 		item = entityManager.getReference(Item.class, item.getId());
@@ -114,6 +119,33 @@ public class ItemServiceJpa implements ItemService {
 			result = items.get(0);
 		}
 		return result;
+	}
+	
+	public String getNextItemId(){
+		String lastId = getLast().getId();
+
+		String yid = lastId.split("AWGS-")[1];
+
+		String[] yidt = yid.split("-"); 
+		int year = Integer.parseInt(yidt[0]);
+		int num = Integer.parseInt(yidt[1]);
+
+		int cyear = Calendar.getInstance().get(Calendar.YEAR);
+		int newnum = num;
+		int newyear = year;
+
+		if(year == cyear){
+			newnum++;
+		}
+		else{
+			newyear = cyear;
+			newnum = 1;
+		}
+
+		String newyearString = String.format("%04d", newyear);
+		String newnumString = String.format("%03d", newnum);
+
+		return "AWGS-" + newyearString + "-" + newnumString;
 	}
 }
 

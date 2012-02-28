@@ -14,4 +14,5 @@ public interface ItemService {
 	public boolean delete(Item medium);
 	public boolean update(Item medium);
 	public Item findItem(Item medium);
+	public String getNextItemId();
 }

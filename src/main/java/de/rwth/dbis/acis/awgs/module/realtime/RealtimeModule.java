@@ -198,8 +198,8 @@ public class RealtimeModule implements PacketListener {
 		PacketFilter filter = new PacketTypeFilter(Message.class);
 		xc.addPacketListener(this,filter);
 
-		
-		
+
+
 		//testSendMessageToRoom("awgs-test@muc.role.dbis.rwth-aachen.de", "Something I ever wanted to say...");
 	}
 
@@ -255,7 +255,7 @@ public class RealtimeModule implements PacketListener {
 			try {
 				joinRoom(room.getRoom(),room.getNick());
 				System.out.println("Joined room " + room.getRoom() + " as '" + room.getNick() + "'.");
-				
+
 				System.out.println("Sent welcome message.");
 			} catch (XMPPException e) {
 				System.err.println("Could not join room " + room.getRoom());
@@ -263,7 +263,7 @@ public class RealtimeModule implements PacketListener {
 			}
 		}
 	}
-	
+
 	public void broadcastToRooms(String body, String html){
 		Iterator<String> mit = mucs.keySet().iterator();
 		while (mit.hasNext()){
@@ -316,62 +316,102 @@ public class RealtimeModule implements PacketListener {
 		String body = m.getBody();
 		String from = m.getFrom();
 
-		System.out.println("Realtime Service: message from " + m.getFrom());
-		if(body.startsWith("@awgs-bot")){
+		//System.out.println("Realtime Service: message from " + m.getFrom());
+		if(body.startsWith("awgs")){
 
 			String response;
 			String htmlResponse = "";
 
-			if(body.trim().equals("@awgs-bot help")){
+			if(body.trim().equals("awgs help")){
 				response = "Command list:\n";
-				response += "@awgs-bot get items - get list of registered items\n";
-				response += "@awgs-bot get item <id> - get information about registered item\n";
+				response += "awgs list - get list of AWGS items\n";
+				response += "awgs search <query> - search for AWGS items\n";
+				response += "awgs get <id> - get information about given item\n";
 			}
-			else if(body.trim().equals("@awgs-bot get items")){
+			else if(body.trim().equals("awgs sucks")){
+				String respondTo;
+				if(m.getType().equals(Message.Type.groupchat)){
+					//System.out.println("Realtime Service: detected MUC message");
+					respondTo = from.split("/")[1];
+				}
+				else{
+					//System.out.println("Realtime Service: detected IM message");
+					respondTo = from.split("@")[0];
+				}
+				String[] insults = new String[]{"Is that you who is smelling so bad?","Go fuck yourself!","Shut up!"};
+				int insultIndex = (int) (Math.floor(Math.random()*4));
+				System.out.println("Picking insult index " + insultIndex);
+				response = "@" + respondTo + ": "  + insults[insultIndex];
+			}
+			else if(body.trim().equals("awgs list")){
 
 				List<Item> items = itemService.getAll();
 				Iterator<Item>itemsit = items.iterator();
-				response = "Found " + items.size() + " AWGS items:";
-				htmlResponse = "<b>ACIS Working Group Series</b><br/><br/>";
+				response = "ACIS Working Group Series\n-------------------------\n";
+
 				while(itemsit.hasNext()){
 					Item i = itemsit.next();
 					response += "\n  - " + i.getId() + ": " + i.getName();
-					htmlResponse += "<br/>" + i.getId() + " - " + i.getName();
 				}
 			}
-			else if(body.trim().startsWith("@awgs-bot get item ")){
-				String[] tokens = body.trim().split("@awgs-bot get item ");
+			else if(body.trim().startsWith("awgs search ")){
+
+				String[] tokens = body.trim().split("awgs search ");
 				if(tokens.length != 2){
 					response = "Syntax error";
-					response += "Command Syntax: @awgs-bot get item <id>";
+					response += "Command Syntax: awgs search <query>";
+				}
+				else{
+					String query = "%"+ tokens[1] + "%";
+					List<Item> items = itemService.search(query);
+					Iterator<Item>itemsit = items.iterator();
+					response = "ACIS Working Group Series (results for query '" + tokens[1] + "')\n------------------------------------------";
+					while(itemsit.hasNext()){
+						Item i = itemsit.next();
+						response += "\n  - " + i.getId() + ": " + i.getName();
+					}
+				}
+
+			}
+			else if(body.trim().startsWith("awgs get ")){
+				String[] tokens = body.trim().split("awgs get ");
+				if(tokens.length != 2){
+					response = "Syntax error";
+					response += "Command Syntax: awgs get <id>";
 				}
 				else{
 					String id = tokens[1];
-					response = "AWGS Item " + id;
+					response = id;
 					Item i = itemService.getById(id);
-					response += "\nName: " + i.getName();
-					response += "\nDescription: " + i.getDescription();
-					response += "\nOwner: " + i.getOwner();
-					response += "\nDocument URL: " + i.getUrl();
 
-					String status;
+					if(i!=null){
+						response += "\nName: " + i.getName();
+						response += "\nDescription: " + i.getDescription();
+						response += "\nOwner: " + i.getOwner();
+						response += "\nDocument URL: " + i.getUrl();
 
-					if(i.getStatus() == 0){
-						status = "draft";
-					}
-					else if(i.getStatus() == 1){
-						status = "submitted";
-					}
-					else{
-						status = "unknown";
-					}
+						String status;
 
-					response += "\nStatus: " + status;
+						if(i.getStatus() == 0){
+							status = "draft";
+						}
+						else if(i.getStatus() == 1){
+							status = "submitted";
+						}
+						else{
+							status = "unknown";
+						}
+
+						response += "\nStatus: " + status;
+					}
+					else {
+						response = "Item " + id + " does not exist.";
+					}
 				}
 			}
 
 			else{
-				response = "Send '@awgs-bot help' for a list of commands.";
+				response = "Send 'awgs help' for a list of commands.";
 			}
 
 			String to = null;

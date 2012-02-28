@@ -1,5 +1,7 @@
 package de.rwth.dbis.acis.awgs.entity;
 
+import java.util.Date;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -38,6 +40,9 @@ public class Item {
 	
 	@Column(name = "OWNER", nullable=false)
 	private String owner;
+	
+	@Column(name = "LASTUPDATE", nullable=false)
+	private Date lastUpdate;
 	
 	
 	public String getId() {
@@ -86,6 +91,14 @@ public class Item {
 
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	public Date getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate) {
+		this.lastUpdate = lastUpdate;
 	}
 
 }
