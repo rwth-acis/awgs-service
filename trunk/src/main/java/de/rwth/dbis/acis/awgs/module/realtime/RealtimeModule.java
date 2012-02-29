@@ -339,8 +339,17 @@ public class RealtimeModule implements PacketListener {
 					//System.out.println("Realtime Service: detected IM message");
 					respondTo = from.split("@")[0];
 				}
-				String[] insults = new String[]{"Is that you who is smelling so bad?","Go fuck yourself!","Shut up!"};
-				int insultIndex = (int) (Math.floor(Math.random()*4));
+				String[] insults = new String[]{"Is that you who is smelling so bad?",
+						"Go fuck yourself!",
+						"Shut the fuck up!",
+						"Your mom sucks!",
+						"Ugly and stupid people tend to insult more than good looking intelligent people...",
+						"Bread can decay. What can you do?",
+						"What is your problem, loser?",
+						"Did you ever think about killing yourself? Now would be a good time...",
+						"Your momma stinks while shitting!",
+						""};
+				int insultIndex = (int) (Math.floor(Math.random()*10));
 				System.out.println("Picking insult index " + insultIndex);
 				response = "@" + respondTo + ": "  + insults[insultIndex];
 			}
