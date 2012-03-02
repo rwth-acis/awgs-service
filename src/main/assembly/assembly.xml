@@ -1,0 +1,69 @@
+<assembly>
+	<id>0.1</id>
+	<formats>
+		<format>zip</format>
+		<format>tar.gz</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>awgs-service-${project.version}</outputDirectory>
+			<outputFileNameMapping>webapp/${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+			<useTransitiveDependencies>false</useTransitiveDependencies>
+			<includes>
+				<include>de.rwth-aachen.dbis:awgs-service</include>
+				<include>org.mortbay.jetty:jetty-runner</include>
+			</includes>
+		</dependencySet>
+	</dependencySets>
+	<fileSets>
+
+		<!-- include README -->
+		<fileSet>
+			<outputDirectory>awgs-service-${project.version}</outputDirectory>
+			<directory>${basedir}/src/main/assembly/</directory>
+			<includes>
+				<include>README.txt</include>
+			</includes>
+		</fileSet>
+
+		<!-- Includes for SDK bin directory -->
+
+		<!-- include start scripts for local development server -->
+		<fileSet>
+			<outputDirectory>awgs-service-${project.version}/bin</outputDirectory>
+			<directory>${basedir}/src/main/assembly/bin</directory>
+			<includes>
+				<include>start.cmd</include>
+				<include>start.sh</include>
+			</includes>
+		</fileSet>
+	</fileSets>
+	
+	<!-- Include development server start page -->
+	<!-- Add filtering to files where version number etc. need be added -->
+	<!-- 
+	<files>
+		<file>
+			<source>${basedir}/src/main/webapp/VERSION</source>
+			<outputDirectory>role-${project.version}-sdk</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+		<file>
+			<source>${basedir}/src/main/webapp/index.html</source>
+			<outputDirectory>role-${project.version}-sdk</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+		<file>
+			<source>${basedir}/src/main/webapp/doc/gadget/samples/index.html</source>
+			<outputDirectory>role-${project.version}-sdk/src/gadget/samples</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+		<file>
+			<source>${basedir}/src/main/webapp/doc/gadget/development/index.html</source>
+			<outputDirectory>role-${project.version}-sdk/src/gadget/development</outputDirectory>
+			<filtered>true</filtered>
+		</file>
+	</files>
+	-->	
+</assembly>
