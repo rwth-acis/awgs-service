@@ -32,23 +32,13 @@ import de.rwth.dbis.acis.awgs.util.CORS;
 
 @Path("/rooms")
 @Component
-public class RoomsResource {
-
-	@Context UriInfo uriInfo;
+public class RoomsResource extends URIAwareResource{
 
 	@Autowired
 	RoomsService roomsService;
 
 	@Autowired
 	RealtimeModule realtimeModule;
-
-	private String _corsHeaders;
-
-	@OPTIONS
-	public Response corsResource(@HeaderParam("Access-Control-Request-Headers") String requestH) {
-		_corsHeaders = requestH;
-		return CORS.makeCORS(Response.ok(), requestH);
-	}
 	
 	@GET
 	@Produces("application/json")
@@ -64,7 +54,7 @@ public class RoomsResource {
 			while(roomassit.hasNext()){
 				RoomsAssociation m = roomassit.next();
 
-				String itemResourceUri = uriInfo.getBaseUri().toASCIIString() + "/rooms/" + m.getId();
+				String itemResourceUri =  getEndpointUri() + "/" + m.getRoom();
 				JSONObject rooma = new JSONObject();
 				rooma.put("resource",itemResourceUri);
 				rooma.put("user",m.getUser());

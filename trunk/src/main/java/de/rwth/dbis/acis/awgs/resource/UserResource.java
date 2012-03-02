@@ -20,18 +20,10 @@ import de.rwth.dbis.acis.awgs.util.CORS;
 
 @Path("/users/{jid}")
 @Component
-public class UserResource {
+public class UserResource extends URIAwareResource{
 
 	@Autowired
 	RealtimeModule realtimeModule;
-	
-	private String _corsHeaders;
-
-	@OPTIONS
-	public Response corsResource(@HeaderParam("Access-Control-Request-Headers") String requestH) {
-		_corsHeaders = requestH;
-		return CORS.makeCORS(Response.ok(), requestH);
-	}
 	
 	@GET
 	@Produces("application/json")

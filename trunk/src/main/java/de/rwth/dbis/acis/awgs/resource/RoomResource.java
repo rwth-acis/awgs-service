@@ -24,21 +24,13 @@ import de.rwth.dbis.acis.awgs.util.CORS;
 
 @Path("/rooms/{jid}")
 @Component
-public class RoomResource {
+public class RoomResource extends URIAwareResource{
 
 	@Autowired
 	RoomsService roomService;
 	
 	@Autowired
 	RealtimeModule realtimeModule;
-
-	private String _corsHeaders;
-
-	@OPTIONS
-	public Response corsResource(@HeaderParam("Access-Control-Request-Headers") String requestH) {
-		_corsHeaders = requestH;
-		return CORS.makeCORS(Response.ok(), requestH);
-	}
 	
 	@GET
 	@Produces("application/json")
@@ -69,15 +61,12 @@ public class RoomResource {
 	@DELETE
 	public Response deleteItem(@HeaderParam("authorization") String auth, @PathParam("jid") String id){
 		
-		System.out.println(" ***************** DELETE Begin ");
 		RoomsAssociation i = roomService.getByRoom(id);
 		
 		if(null == i){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-		
-		System.out.println(" ***************** DELETE Room exists ");
 		
 		if(!realtimeModule.isAuthenticated(auth)){
 			Response.ResponseBuilder r = Response.status(Status.UNAUTHORIZED);
