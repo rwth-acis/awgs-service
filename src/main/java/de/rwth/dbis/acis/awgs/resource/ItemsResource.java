@@ -9,15 +9,12 @@ import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
-import javax.ws.rs.OPTIONS;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
 
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -30,27 +27,15 @@ import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 import de.rwth.dbis.acis.awgs.util.CORS;
 
-
-
 @Path("/items")
 @Component
-public class ItemsResource {
+public class ItemsResource extends URIAwareResource{
 
 	@Autowired
 	ItemService itemService;
 
 	@Autowired
 	RealtimeModule realtimeModule;
-
-	@Context UriInfo uriInfo;
-
-	private String _corsHeaders;
-
-	@OPTIONS
-	public Response corsResource(@HeaderParam("Access-Control-Request-Headers") String requestH) {
-		_corsHeaders = requestH;
-		return CORS.makeCORS(Response.ok(), requestH);
-	}
 
 	@GET
 	@Produces("application/json")
@@ -67,16 +52,12 @@ public class ItemsResource {
 
 			JSONObject jo = new JSONObject();
 			
-			System.out.println("Absolute Path URI: " + uriInfo.getAbsolutePath()); 
-			System.out.println("Request URI: " + uriInfo.getRequestUri());
-			System.out.println("Request URI: " + uriInfo.getBaseUri());
-			System.out.println("Request Path: " + uriInfo.getPath());
+			System.out.println("Passed URI: " + System.getProperty("service.uri"));
 			
 			while(itemit.hasNext()){
 				Item i = itemit.next();
 				JSONObject jom = new JSONObject();
-				
-				jom.put("resource", uriInfo.getAbsolutePath() + "/" +  i.getId());
+				jom.put("resource", getEndpointUri() + "/" +  i.getId());
 				jom.put("id", i.getId());
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
@@ -132,7 +113,7 @@ public class ItemsResource {
 
 			URI location;
 			try {
-				location = new URI(uriInfo.getAbsolutePath().toASCIIString() + "/" + newItem.getId());
+				location = new URI(getEndpointUri().toASCIIString() + "/" + newItem.getId());
 
 				String msg = "A new AWGS item was added: " + location;
 				realtimeModule.broadcastToRooms(msg, null);

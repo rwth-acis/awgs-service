@@ -23,21 +23,13 @@ import de.rwth.dbis.acis.awgs.util.HTMLHelper;
 
 @Path("/items/{id}")
 @Component
-public class ItemResource {
+public class ItemResource extends URIAwareResource{
 
 	@Autowired
 	ItemService itemService;
 	
 	@Autowired
 	RealtimeModule realtimeModule;
-
-	private String _corsHeaders;
-
-	@OPTIONS
-	public Response corsResource(@HeaderParam("Access-Control-Request-Headers") String requestH) {
-		_corsHeaders = requestH;
-		return CORS.makeCORS(Response.ok(), requestH);
-	}
 	
 	@GET
 	@Produces("application/json")
