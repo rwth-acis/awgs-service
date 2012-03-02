@@ -115,7 +115,10 @@
 		
 		function init() {
 			
-			awgs = new AwgsClient("http://localhost:8080/awgs-service/resources/");
+			console.log(window.location);
+			console.log(window.location.pathname);
+			
+			awgs = new AwgsClient(window.location.href + "resources/");
 			
 			// load all users and display in a list
 			updateStatus();
@@ -138,7 +141,6 @@
 							$("#login-login").val(),
 							$("#login-password").val(),
 							function(result){
-								console.log("Login Result: " + result);
 								if(result){
 									that.dialog("close");
 									updateStatus();

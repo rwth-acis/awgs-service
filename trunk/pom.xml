@@ -1,10 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>dbis.rwth-aachen.de</groupId>
+    <groupId>de.rwth-aachen.dbis</groupId>
     <artifactId>awgs-service</artifactId>
     <packaging>war</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.1</version>
     <name>AWGS - Advanced Working Group Series Service</name>
     <build>
         <finalName>awgs-service</finalName>
@@ -23,10 +23,34 @@
 				<artifactId>maven-jetty-plugin</artifactId>
 				<version>6.1.10</version>
 			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.2.1</version>
+				<configuration>
+					<descriptors>
+						<descriptor>src/main/assembly/assembly.xml</descriptor>
+					</descriptors>
+					<tarLongFileMode>gnu</tarLongFileMode>
+					<filters>
+					</filters>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
         </plugins>
+		
     </build>
     <dependencies>
 	
+		<!--
 		<dependency>
 			<groupId>com.google.inject</groupId>
 			<artifactId>guice</artifactId>
@@ -48,7 +72,7 @@
 			<artifactId>guice-servlet</artifactId>
 			<version>3.0</version>
 		</dependency>
-		
+		-->
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
@@ -168,8 +192,12 @@
 			<version>3.2.1</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>org.mortbay.jetty</groupId>
+			<artifactId>jetty-runner</artifactId>
+			<version>7.4.2.v20110526</version>
+		</dependency>
 		
-
     </dependencies>
    
 	<properties>

@@ -66,12 +66,17 @@ public class ItemsResource {
 			Iterator<Item> itemit = items.iterator();
 
 			JSONObject jo = new JSONObject();
-
+			
+			System.out.println("Absolute Path URI: " + uriInfo.getAbsolutePath()); 
+			System.out.println("Request URI: " + uriInfo.getRequestUri());
+			System.out.println("Request URI: " + uriInfo.getBaseUri());
+			System.out.println("Request Path: " + uriInfo.getPath());
+			
 			while(itemit.hasNext()){
 				Item i = itemit.next();
 				JSONObject jom = new JSONObject();
 				
-				jom.put("resource", uriInfo.getAbsolutePath() + i.getId());
+				jom.put("resource", uriInfo.getAbsolutePath() + "/" +  i.getId());
 				jom.put("id", i.getId());
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
