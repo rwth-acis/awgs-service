@@ -113,11 +113,8 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 
 AwgsClient.prototype.getUser = function(){
 	if(typeof this._jidcred !== 'undefined'){
-		console.log(this._jidcred);
 		var dec = $.base64.decode(this._jidcred);
-		console.log("Decoded XMPP Credentials: " + dec);
 		return dec.split(":")[0];
-		
 	}
 	return null;
 }
@@ -160,10 +157,21 @@ AwgsClient.prototype.getItems = function(callback){
 };
 
 AwgsClient.prototype.searchItems = function(query, callback){
-	var resource = this._itemsResource + "?search=" + query;
+	var resource = this._itemsResource + "?q=" + query;
 	
 	$.get(resource, function(data) {
-		callback(data.items);		
+		var ar;
+		if(typeof data.items == 'undefined'){
+			ar = [];
+		}
+		else if(data.items.length){
+			ar = data.items;
+		}
+		else{
+			var ar = [];
+			ar.push(data.items);
+		}
+		callback(ar);		
 	});
 };
 
@@ -264,6 +272,16 @@ AwgsClient.prototype.createItem = function(m, callback){
 		cache: false
 	});
 };
+
+AwgsClient.prototype.getNextId = function(callback){
+	var resource = this._itemsResource + "/next";
+	
+	$.get(resource, function(data) {
+		callback(data.id);		
+	});
+};
+
+
 
 //TODO: add further library functions
 

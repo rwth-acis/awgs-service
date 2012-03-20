@@ -10,7 +10,12 @@ public class Authentication {
 			if(Base64.isBase64(authkey)){
 				String[] dauth = (new String(Base64.decode(authkey))).split(":");
 				if(dauth.length == 2){
-					return dauth;
+					if(dauth[0].split("@").length == 2){
+						return dauth;
+					}
+					else{
+						throw new IllegalArgumentException("Auth header must contain login as Jabber ID!");
+					}
 				}
 				else {
 					throw new IllegalArgumentException("Auth header must contain login and password separated by a colon!");

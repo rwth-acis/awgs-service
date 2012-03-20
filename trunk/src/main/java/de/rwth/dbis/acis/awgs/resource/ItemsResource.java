@@ -39,7 +39,7 @@ public class ItemsResource extends URIAwareResource{
 
 	@GET
 	@Produces("application/json")
-	public Response getItems(@QueryParam(value="search") String query) {
+	public Response getItems(@QueryParam(value="q") String query) {
 		try {
 			List<Item> items;
 			if(null == query || query.equals("")){
@@ -115,7 +115,7 @@ public class ItemsResource extends URIAwareResource{
 			try {
 				location = new URI(getEndpointUri().toASCIIString() + "/" + newItem.getId());
 
-				String msg = "A new AWGS item was added: " + location;
+				String msg = newItem.getOwner() + " registered new AWGS item '" + "' ("  + location + ").";
 				realtimeModule.broadcastToRooms(msg, null);
 
 				Response.ResponseBuilder r = Response.created(location);
