@@ -69,7 +69,7 @@ public class ItemServiceJpa implements ItemService {
 	@Transactional(readOnly = true)
 	public List<Item> search(String query){
 		Query q = entityManager.createNamedQuery("Item.search");
-		q.setParameter("query",query);
+		q.setParameter("query","%" + query + "%");
 
 		List<Item> items = q.getResultList();
 		return items;

@@ -478,9 +478,9 @@ public class RealtimeModule implements PacketListener {
 			String node = jidts[0];
 			String domain = jidts[1];
 
-			System.out.println("Authenticate XMPP - Node: " + node);
-			System.out.println("Authenticate XMPP - Domain: " + domain);
-			System.out.println("Authenticate XMPP - Pass: " + pass);
+			//System.out.println("Authenticate XMPP - Node: " + node);
+			//System.out.println("Authenticate XMPP - Domain: " + domain);
+			//System.out.println("Authenticate XMPP - Pass: " + pass);
 
 			ConnectionConfiguration xcc = new ConnectionConfiguration(domain, 5222);
 			xcc.setCompressionEnabled(true);

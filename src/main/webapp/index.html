@@ -1,70 +1,96 @@
 <html>
 <head>
 
-	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/base/jquery-ui.css" type="text/css" media="all" />
-	<link rel="stylesheet" href="./css/jquery.tooltip.css" type="text/css" media="all" />
-	<style type="text/css">
-		* { 
-			font-family: Verdana;
-			sans-serif; 
-		}
-		
-		body { font: 1em "Trebuchet MS", verdana, arial, sans-serif; font-size: 100%; }
-		input, textarea { font-family: Arial; font-size: 125%; padding: 7px; }
-		label { display: block; }
-		
-		.empty {
-			width:50px;
-		}
-		
-		.fg-button { 
-			outline: 0; 
-			width: 350px;
-			font-size: 17pt;
-			text-decoration:none !important; 
-			cursor:pointer; 
-			position: relative; 
-			text-align: center; 
-			zoom: 1; 
-    }
-   
-		#bar {
-      top:0;
-      right:0;
-      left:0;
-      font-size: 10pt;
-      text-align:right;
-      vertical-align:middle;
-      background:#000;
-      
-      padding: 4px;
-      margin: 0px;
-      width:100%;
-   }
-   
-   #loginb, #logoutb {
-   	 color: #fff;
-   	 cursor: pointer;
-   }
-   
-   #dialog-login, #dialog-register {
-   	font-size: 10pt;
-   }
-   
-   #username {
-    color:#bbf;
-   	font-weight:bold;
-   }
-		
-	</style>
-	
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-	<script type="text/javascript" src="./javascript/jquery.base64.js"></script>
-	<script type="text/javascript" src="./javascript/jquery.tooltip.js"></script>
-	<script type="text/javascript" src="./javascript/awgs.js"></script>
-	
-	<script type="text/javascript">
+<link rel="stylesheet"
+	href="./javascript/jquery/themes/base/jquery.ui.all.css"
+	type="text/css" media="all" />
+
+<style type="text/css">
+* {
+	font-family: Verdana;
+	sans-serif;
+}
+
+body {
+	font: 1em "Trebuchet MS", verdana, arial, sans-serif;
+	font-size: 100%;
+}
+
+input,textarea {
+	font-family: Arial;
+	font-size: 125%;
+	padding: 7px;
+}
+
+label {
+	display: block;
+}
+
+.empty {
+	width: 50px;
+}
+
+.fg-button {
+	outline: 0;
+	width: 350px;
+	font-size: 17pt;
+	text-decoration: none !important;
+	cursor: pointer;
+	position: relative;
+	text-align: center;
+	zoom: 1;
+}
+
+#bar {
+	top: 0;
+	right: 0;
+	left: 0;
+	font-size: 10pt;
+	text-align: right;
+	vertical-align: middle;
+	background: #000;
+	padding: 4px;
+	margin: 0px;
+	width: 100%;
+}
+
+#loginb,#logoutb {
+	color: #fff;
+	cursor: pointer;
+}
+
+#dialog-login,#dialog-register {
+	font-size: 10pt;
+}
+
+#username {
+	color: #bbf;
+	font-weight: bold;
+}
+
+.ui-autocomplete-loading {
+	background: white url('./media/ui-anim_basic_16x16.gif') right center
+		no-repeat;
+}
+</style>
+
+<script type="text/javascript"
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+<script type="text/javascript"
+	src="./javascript/jquery/ui/jquery-ui-1.8.18.custom.js"></script>
+<script type="text/javascript"
+	src="./javascript/jquery/ui/jquery.ui.core.js"></script>
+<script type="text/javascript"
+	src="./javascript/jquery/ui/jquery.ui.widget.js"></script>
+<script type="text/javascript"
+	src="./javascript/jquery/ui/jquery.ui.position.js"></script>
+<script type="text/javascript"
+	src="./javascript/jquery/ui/jquery.ui.autocomplete.js"></script>
+<script type="text/javascript"
+	src="./javascript/jquery/external/jquery.base64.js"></script>
+<script type="text/javascript" src="./javascript/awgs.js"></script>
+
+<script type="text/javascript">
 		
 		var awgs;
 		
@@ -82,20 +108,37 @@
 			*/
 		}
 		
+		
+		
 		function updateItems() {
 			console.log("Items listing request");
-			awgs.getItems(function(items){
-				var itemt = "<table padding='10' border='0'>";
-				itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th></tr>"
-				for(var i=0;i<items.length;i++){
-					var item = items[i];
-					//console.log("Item " + item.id + " - " + item.name);
-					
-					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td></tr>";
-				}
-				itemt += "</table>";
-				$("#items").html(itemt);
-			});
+			if($("search").val() == ""){
+				awgs.getItems(function(items){
+					var itemt = "<table padding='10' border='0'>";
+					itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th></tr>"
+					for(var i=0;i<items.length;i++){
+						var item = items[i];
+						//console.log("Item " + item.id + " - " + item.name);
+						
+						itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td></tr>";
+					}
+					itemt += "</table>";
+					$("#items").html(itemt);
+				});
+			} else {
+				awgs.searchItems($("#search").val(),function(items){
+					var itemt = "<table padding='10' border='0'>";
+					itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th></tr>"
+					for(var i=0;i<items.length;i++){
+						var item = items[i];
+						//console.log("Item " + item.id + " - " + item.name);
+						
+						itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td></tr>";
+					}
+					itemt += "</table>";
+					$("#items").html(itemt);
+				});
+			}
 		}
 		
 		function updateStatus(){
@@ -159,8 +202,60 @@
 			});
 			
 			$( "#registerb" ).button().click(function() {
+				awgs.getNextId(function(id){
+					console.log("New Id is " +id);
+					$("#newid").html(id);
+				});
 				$( "#dialog-register" ).dialog("open");
 			});
+			
+			$("#search").keyup(function(event){
+				var q = $("#search").val();
+				if(q.length > 1){
+					console.log("Search query changed to " + $("#search").val());
+					updateItems();
+				}
+			});
+			
+			/*
+			$( "#search" ).autocomplete({
+				
+				source: function( request, response ) {
+					console.log("Searching with query "+ $("#search").val());
+					awgs.searchItems($("#search").val(),function(result){
+							console.log("data returned");
+							console.log(result)
+							
+							var ar;
+							
+							if(result){
+								if(result.length){
+									ar = result;
+								}
+								else{
+									var ar = [];
+									ar.push(result);
+								}
+								updateItems();
+								response( $.map(ar, function( item ) {
+									return {
+										label: item.name,
+										value: item
+									}
+								}));
+							}
+					});
+				},
+				select: function( event, ui ) {
+					$( "#search" ).val( ui.item.label );
+					console.log( ui.item ?
+						"Selected: " + ui.item.value + " aka " + ui.item.id :
+						"Nothing selected, input was " + this.value );
+					return false;
+				},
+				minLength: 2
+			});
+			*/
 			
 			$("#dialog-register").dialog({
 				autoOpen: false,
@@ -178,9 +273,19 @@
 							  status: $("#register-status").val()
 						}
 						awgs.createItem(item,function(result){
-							console.log("Created item " + result);
-							updateItems();
-							that.dialog("close");
+							console.log(result);
+							if(result.status=="conflict"){
+								console.log("Conflict detected");
+								$("#register-error").html("The same document resource has been registered before!");
+							}
+							else if(result.status == "hick"){
+								
+							}
+							else if(result.status=="success"){
+								console.log("Created item " + result);
+								updateItems();
+								that.dialog("close");
+							}
 						});
 					},
 					Cancel: function() {
@@ -190,99 +295,90 @@
 			});
 		}
 		
-		function updateTips( t ) {
-			$("#signup-tips").text( t ).addClass( "ui-state-highlight" );
-			setTimeout(function() {
-				$("#signup-tips").removeClass( "ui-state-highlight", 1500 );
-			}, 500 );
-		}
-		
-		function checkLength( o, n, min, max ) {
-			if ( o.val().length > max || o.val().length < min ) {
-				o.addClass( "ui-state-error" );
-				updateTips( "Length of " + n + " must be between " +
-					min + " and " + max + "." );
-				return false;
-			} else {
-				return true;
-			}
-		}
-
-		function checkRegexp( o, regexp, n ) {
-			if ( !( regexp.test( o.val() ) ) ) {
-				o.addClass( "ui-state-error" );
-				updateTips( n );
-				return false;
-			} else {
-				return true;
-			}
-		}
-		
 		$(document).ready(init);
 		
 	</script>
 </head>
 
 <body>
-<div id="bar">
-	<span id="username"></span>
-	<span class="empty"></span> 
-	<span id="loginb" class="ui-button-text">Login</span>
-  <span id="logoutb" class="ui-button-text">Logout</span>
-</div>
+	<div id="bar">
+		<span id="username"></span> <span class="empty"></span> <span
+			id="loginb" class="ui-button-text">Login</span> <span id="logoutb"
+			class="ui-button-text">Logout</span>
+	</div>
 
-<div id="main">
-<h2>The ACIS Working Group Series</h2>
+	<div id="main">
+		<h2>The ACIS Working Group Series</h2>
 
-A service for managing the ACIS Working Group Series, a series of working papers created by members of the ACIS working group at Chair of Computer Science 5 - Databases &amp; Information Systems, RWTH Aachen University, Germany.
+		A service for managing the ACIS Working Group Series, a series of
+		working papers created by members of the ACIS working group at Chair
+		of Computer Science 5 - Databases &amp; Information Systems, RWTH
+		Aachen University, Germany. <br />
+		<br />
 
-<br/><br/>
+		<div class="ui-widget">
+			<label for="search">Search: </label> <input id="search" type="text" value="" />
+		</div>
 
+		<div id="profile">
 
+			<span id="profile-buttons">
+				<button id="registerb"
+					class="fg-button ui-state-default ui-corner-all">Register
+					new AWGS ID</button>
+			</span>
+		</div>
 
+		<br />
 
-<div id="profile">
-	
-	<span id="profile-buttons">
-		<button id="registerb" class="fg-button ui-state-default ui-corner-all">Register new AWGS ID</button>
-	</span>
-</div>
+		<div id="items"></div>
 
-<br/>
+		<div id="users"></div>
 
-<div id="items">
-	
-</div>
+	</div>
+	<div id="dialog-login" title="Login">
+		<form>
+			<fieldset>
+				<label for="login-login">JID:</label> <input type="text"
+					id="login-login" value="" size="50"
+					class="text ui-widget-content ui-corner-all" /><br /> <label
+					for="login-password">Password:</label> <input type="password"
+					id="login-password" size="50" value=""
+					class="text ui-widget-content ui-corner-all" /><br />
+			</fieldset>
+		</form>
+	</div>
 
-<div id="users"></div>
-
-</div>
-<div id="dialog-login" title="Login">
-	<form>
-		<fieldset>
-			<label for="login-login">JID:</label>
-			<input type="text" id="login-login" value="" size="50" class="text ui-widget-content ui-corner-all" /><br/>
-			<label for="login-password">Password:</label>
-			<input type="password" id="login-password" size="50" value="" class="text ui-widget-content ui-corner-all" /><br/>
-		</fieldset>
-	</form>
-</div>
-
-<div id="dialog-register" title="Register">
-	Register a new ACIS Working Group Series Item.
-	<form>
-		<fieldset>
-			<label for="">Name:</label>
-			<input type="text" id="register-name" value="" size="50" class="text ui-widget-content ui-corner-all" /><br/>
-			<label for="register-description">Description:</label>
-			<input type="text" id="register-description" value="" size="50" class="text ui-widget-content ui-corner-all" /><br/>
-			<label for="register-url">URL:</label>
-			<input type="text" id="register-url" value="" size="50" class="text ui-widget-content ui-corner-all" /><br/>
-			<label for="register-status">Status:</label>
-			<input type="text" id="register-status" value="" size="50" class="text ui-widget-content ui-corner-all" /><br/>
-		</fieldset>
-	</form>
-</div>
+	<div id="dialog-register" title="Register">
+		Register ACIS Working Group Series ID <span id="newid"></span>.
+		<form>
+			<fieldset>
+				<label for="">Name:</label> <input type="text" id="register-name"
+					value="" size="50" class="text ui-widget-content ui-corner-all" /><br />
+				<label for="register-description">Description:</label> 
+				<textarea id="register-description"	class="text ui-widget-content ui-corner-all"></textarea><br /> 
+					<label for="register-url">URL:</label> <input type="text"
+					id="register-url" value="" size="50"
+					class="text ui-widget-content ui-corner-all" /><br /> <label
+					for="register-status">Status:</label> 
+					<select id="register-status" name="register-status" size="1" class="ui-widget-content ui-corner-all">
+      			<option value="0">Draft</option>
+      			<option value="1">Submitted</option>
+      			<option value="2">Rejected</option>
+      			<option value="3">Under Review</option>
+      			<option value="4">Published</option>
+    			</select>
+					
+					<!--  
+					<input type="text"
+					id="register-status" value="" size="50"
+					class="text ui-widget-content ui-corner-all" />
+					-->
+					<br />
+			</fieldset>
+		</form>
+		<span id="register-error"></span>
+	</div>
 
 </body>
 </html>
