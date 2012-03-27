@@ -79,14 +79,6 @@ label {
 <script type="text/javascript"
 	src="./javascript/jquery/ui/jquery-ui-1.8.18.custom.js"></script>
 <script type="text/javascript"
-	src="./javascript/jquery/ui/jquery.ui.core.js"></script>
-<script type="text/javascript"
-	src="./javascript/jquery/ui/jquery.ui.widget.js"></script>
-<script type="text/javascript"
-	src="./javascript/jquery/ui/jquery.ui.position.js"></script>
-<script type="text/javascript"
-	src="./javascript/jquery/ui/jquery.ui.autocomplete.js"></script>
-<script type="text/javascript"
 	src="./javascript/jquery/external/jquery.base64.js"></script>
 <script type="text/javascript" src="./javascript/awgs.js"></script>
 
@@ -156,6 +148,13 @@ label {
 			}
 		}
 		
+		function resetRegistration(){
+			$("#register-name").val("");
+			$("#register-description").val("");
+			$("#register-url").val("");
+			$("#register-status").val("");
+		}
+		
 		function init() {
 			
 			console.log(window.location);
@@ -217,46 +216,6 @@ label {
 				}
 			});
 			
-			/*
-			$( "#search" ).autocomplete({
-				
-				source: function( request, response ) {
-					console.log("Searching with query "+ $("#search").val());
-					awgs.searchItems($("#search").val(),function(result){
-							console.log("data returned");
-							console.log(result)
-							
-							var ar;
-							
-							if(result){
-								if(result.length){
-									ar = result;
-								}
-								else{
-									var ar = [];
-									ar.push(result);
-								}
-								updateItems();
-								response( $.map(ar, function( item ) {
-									return {
-										label: item.name,
-										value: item
-									}
-								}));
-							}
-					});
-				},
-				select: function( event, ui ) {
-					$( "#search" ).val( ui.item.label );
-					console.log( ui.item ?
-						"Selected: " + ui.item.value + " aka " + ui.item.id :
-						"Nothing selected, input was " + this.value );
-					return false;
-				},
-				minLength: 2
-			});
-			*/
-			
 			$("#dialog-register").dialog({
 				autoOpen: false,
 				//height: 500,
@@ -266,6 +225,8 @@ label {
 					"Register": function() {
 						var that = $(this);
 						
+						
+						if()
 						var item = {
 								name: $("#register-name").val(),
 							  description: $("#register-description").val(),
@@ -276,7 +237,7 @@ label {
 							console.log(result);
 							if(result.status=="conflict"){
 								console.log("Conflict detected");
-								$("#register-error").html("The same document resource has been registered before!");
+								$("#register-error").html("Cannot register before!");
 							}
 							else if(result.status == "hick"){
 								
@@ -368,13 +329,6 @@ label {
       			<option value="3">Under Review</option>
       			<option value="4">Published</option>
     			</select>
-					
-					<!--  
-					<input type="text"
-					id="register-status" value="" size="50"
-					class="text ui-widget-content ui-corner-all" />
-					-->
-					<br />
 			</fieldset>
 		</form>
 		<span id="register-error"></span>
