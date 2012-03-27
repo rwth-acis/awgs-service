@@ -187,7 +187,7 @@ AwgsClient.prototype.deleteItem = function(id, callback){
 	if(!this.authenticated){
 		alert("Not logged in");
 	} 
-	var resource = this._itemsResource + id;
+	var resource = this._itemsResource + "/" + id;
 	
 	var that = this;
 	
