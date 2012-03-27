@@ -97,7 +97,7 @@ public class ItemResource extends URIAwareResource{
 		
 		itemService.delete(i);
 		
-		String msg = "Deleted item " + i.getId() + " - " + i.getName() + ".";
+		String msg = i.getOwner() + " deleted item '" + i.getName() + "' (" + i.getId() + ").";
 		realtimeModule.broadcastToRooms(msg,null);
 		
 		Response.ResponseBuilder r = Response.ok();

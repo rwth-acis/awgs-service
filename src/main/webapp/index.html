@@ -1,5 +1,6 @@
 <html>
 <head>
+<title>AWGS</title>
 
 <link rel="stylesheet"
 	href="./javascript/jquery/themes/base/jquery.ui.all.css"
@@ -100,35 +101,46 @@ label {
 			*/
 		}
 		
+		function renderItems(items){
+			var itemt = "<table padding='10' border='0'>";
+			itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th><th> </th></tr>"
+			for(var i=0;i<items.length;i++){
+				var item = items[i];
+				console.log(item);
+				//console.log("Item " + item.id + " - " + item.name);
+				console.log("Owner: " + item.owner +  " Me: " + awgs.getUser());
+				if(item.owner == awgs.getUser()){
+					console.log("Item " + item.id + " is owned by me...");
+					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td><td><button style='font-size:12px;width:70px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='deleteItem(\"" + item.id + "\");'>Delete</button></td></tr>";
+				}	else {
+					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td><td></td></tr>";
+				}
+			}
+			itemt += "</table>";
+			return itemt;
+		}
 		
+		function deleteItem(id){
+			awgs.deleteItem(id, function(r){
+				console.log(r);
+				if (r.status == "success"){
+					console.log("deleted successfully");
+					updateItems();
+				}
+			});
+		}
 		
 		function updateItems() {
 			console.log("Items listing request");
 			if($("search").val() == ""){
 				awgs.getItems(function(items){
-					var itemt = "<table padding='10' border='0'>";
-					itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th></tr>"
-					for(var i=0;i<items.length;i++){
-						var item = items[i];
-						//console.log("Item " + item.id + " - " + item.name);
-						
-						itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td></tr>";
-					}
-					itemt += "</table>";
-					$("#items").html(itemt);
+					var ri = renderItems(items)
+					$("#items").html(ri);
 				});
 			} else {
 				awgs.searchItems($("#search").val(),function(items){
-					var itemt = "<table padding='10' border='0'>";
-					itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th></tr>"
-					for(var i=0;i<items.length;i++){
-						var item = items[i];
-						//console.log("Item " + item.id + " - " + item.name);
-						
-						itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td></tr>";
-					}
-					itemt += "</table>";
-					$("#items").html(itemt);
+					var ri = renderItems(items);
+					$("#items").html(ri);
 				});
 			}
 		}
@@ -177,7 +189,7 @@ label {
 				width: 460,
 				modal: true,
 				buttons: {
-					"Authenticate": function() {
+					"Login": function() {
 						var that = $(this);
 						awgs.authenticate(
 							$("#login-login").val(),
@@ -186,6 +198,7 @@ label {
 								if(result){
 									that.dialog("close");
 									updateStatus();
+									updateItems();
 								}
 							});
 					},
@@ -224,30 +237,44 @@ label {
 				buttons: {
 					"Register": function() {
 						var that = $(this);
+						var doit = true;
 						
-						
-						if()
-						var item = {
-								name: $("#register-name").val(),
-							  description: $("#register-description").val(),
-							  url: $("#register-url").val(),
-							  status: $("#register-status").val()
+						if($("#register-name").val() == ""){
+							doit = false;
+							$("#register-error").html("Please specify a document name.");
 						}
-						awgs.createItem(item,function(result){
-							console.log(result);
-							if(result.status=="conflict"){
-								console.log("Conflict detected");
-								$("#register-error").html("Cannot register before!");
-							}
-							else if(result.status == "hick"){
-								
-							}
-							else if(result.status=="success"){
-								console.log("Created item " + result);
-								updateItems();
-								that.dialog("close");
-							}
-						});
+						
+						if($("#register-description").val() == ""){
+							doit = false;
+							$("#register-error").html("Please specify a document description.");
+						}
+						
+						if($("#register-url").val() == ""){
+							doit = false;
+							$("#register-error").html("Please specify document resource URL.");
+						}
+						
+						if(doit){
+							var item = {
+									name: $("#register-name").val(),
+								  description: $("#register-description").val(),
+								  url: $("#register-url").val(),
+								  status: $("#register-status").val()
+							};
+							
+							awgs.createItem(item,function(result){
+								console.log(result);
+								if(result.status=="conflict"){
+									console.log("Conflict detected");
+									$("#register-error").html("Document resource URL already registered!");
+								}
+								else if(result.status=="success"){
+									console.log("Created item " + result);
+									updateItems();
+									that.dialog("close");
+								}
+							});
+						}
 					},
 					Cancel: function() {
 						$(this).dialog("close");
@@ -274,16 +301,11 @@ label {
 		A service for managing the ACIS Working Group Series, a series of
 		working papers created by members of the ACIS working group at Chair
 		of Computer Science 5 - Databases &amp; Information Systems, RWTH
-		Aachen University, Germany. <br />
-		<br />
+		Aachen University, Germany. <br /> <br />
 
 		<div class="ui-widget">
-			<label for="search">Search: </label> <input id="search" type="text" value="" />
-		</div>
-
-		<div id="profile">
-
-			<span id="profile-buttons">
+			<label for="search">Search: </label> <input id="search" type="text"
+				value="" /> <span id="profile-buttons">
 				<button id="registerb"
 					class="fg-button ui-state-default ui-corner-all">Register
 					new AWGS ID</button>
@@ -316,19 +338,21 @@ label {
 			<fieldset>
 				<label for="">Name:</label> <input type="text" id="register-name"
 					value="" size="50" class="text ui-widget-content ui-corner-all" /><br />
-				<label for="register-description">Description:</label> 
-				<textarea id="register-description"	class="text ui-widget-content ui-corner-all"></textarea><br /> 
-					<label for="register-url">URL:</label> <input type="text"
+				<label for="register-description">Description:</label>
+				<textarea id="register-description"
+					class="text ui-widget-content ui-corner-all"></textarea>
+				<br /> <label for="register-url">URL:</label> <input type="text"
 					id="register-url" value="" size="50"
 					class="text ui-widget-content ui-corner-all" /><br /> <label
-					for="register-status">Status:</label> 
-					<select id="register-status" name="register-status" size="1" class="ui-widget-content ui-corner-all">
-      			<option value="0">Draft</option>
-      			<option value="1">Submitted</option>
-      			<option value="2">Rejected</option>
-      			<option value="3">Under Review</option>
-      			<option value="4">Published</option>
-    			</select>
+					for="register-status">Status:</label> <select id="register-status"
+					name="register-status" size="1"
+					class="ui-widget-content ui-corner-all">
+					<option value="0">Draft</option>
+					<option value="1">Submitted</option>
+					<option value="2">Rejected</option>
+					<option value="3">Under Review</option>
+					<option value="4">Published</option>
+				</select>
 			</fieldset>
 		</form>
 		<span id="register-error"></span>

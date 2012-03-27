@@ -52,7 +52,7 @@ public class ItemsResource extends URIAwareResource{
 
 			JSONObject jo = new JSONObject();
 			
-			System.out.println("Passed URI: " + System.getProperty("service.uri"));
+			//System.out.println("Passed URI: " + System.getProperty("service.uri"));
 			
 			while(itemit.hasNext()){
 				Item i = itemit.next();
@@ -115,7 +115,7 @@ public class ItemsResource extends URIAwareResource{
 			try {
 				location = new URI(getEndpointUri().toASCIIString() + "/" + newItem.getId());
 
-				String msg = newItem.getOwner() + " registered new AWGS item '" + "' ("  + location + ").";
+				String msg = newItem.getOwner() + " registered item '" + newItem.getName() + "' ("  + location + ").";
 				realtimeModule.broadcastToRooms(msg, null);
 
 				Response.ResponseBuilder r = Response.created(location);
