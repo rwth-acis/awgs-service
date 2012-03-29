@@ -1,5 +1,6 @@
 package de.rwth.dbis.acis.awgs.module.realtime;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -22,8 +23,10 @@ import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.packet.XHTMLExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import de.rwth.dbis.acis.awgs.entity.Insult;
 import de.rwth.dbis.acis.awgs.entity.Item;
 import de.rwth.dbis.acis.awgs.entity.RoomsAssociation;
+import de.rwth.dbis.acis.awgs.service.InsultService;
 import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.service.RoomsService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
@@ -62,6 +65,9 @@ public class RealtimeModule implements PacketListener {
 
 	@Autowired
 	ItemService itemService;
+	
+	@Autowired
+	InsultService insultService;
 
 	@Autowired
 	RoomsService roomsService;
@@ -276,7 +282,7 @@ public class RealtimeModule implements PacketListener {
 		MultiUserChat m = getRoom(jid);
 		if(m!=null & !m.isJoined()){
 			m.join(nick);
-			sendMessage(jid, Type.groupchat, "Hi, this is the ACIS Working Group Series Bot.\nSend '@awgs help' for a list of commands.",null);
+			sendMessage(jid, Type.groupchat, "Hi, this is the ACIS Working Group Series Bot.\nSend 'awgs help' for a list of commands.",null);
 		}
 	}
 
@@ -328,6 +334,9 @@ public class RealtimeModule implements PacketListener {
 				response += "awgs list - get list of AWGS items\n";
 				response += "awgs search <query> - search for AWGS items\n";
 				response += "awgs get <id> - get information about given item\n";
+				response += "awgs sucks - insult bot\n";
+				response += "awgs learn insult <insult> - teach bot new insult\n";
+				
 			}
 			else if(body.trim().equals("awgs sucks")){
 				String respondTo;
@@ -339,19 +348,29 @@ public class RealtimeModule implements PacketListener {
 					//System.out.println("Realtime Service: detected IM message");
 					respondTo = from.split("@")[0];
 				}
-				String[] insults = new String[]{"Is that you who is smelling so bad?",
-						"Go fuck yourself!",
-						"Shut the fuck up!",
-						"Your mom sucks!",
-						"Ugly and stupid people tend to insult more than good looking intelligent people...",
-						"Bread can decay. What can you do?",
-						"What is your problem, loser?",
-						"Did you ever think about killing yourself? Now would be a good time...",
-						"Your momma stinks while shitting!",
-						""};
-				int insultIndex = (int) (Math.floor(Math.random()*10));
-				System.out.println("Picking insult index " + insultIndex);
-				response = "@" + respondTo + ": "  + insults[insultIndex];
+				
+				response = "@" + respondTo + ": "  + insultService.getRandom().getInsult();
+			}
+			else if(body.trim().startsWith("awgs learn insult ")){
+				String[] tokens = body.trim().split("awgs learn insult ");
+				if(tokens.length != 2){
+					response = "Syntax error";
+					response += "Command Syntax: awgs learn insult <insult>";
+				}
+				else{
+					String contributor = from;
+					String insult = tokens[1];
+					
+					Insult i = new Insult();
+					i.setContributor(contributor);
+					i.setInsult(insult);
+					i.setDate(new Date());
+					
+					insultService.save(i);
+
+					response = "Thanks for the new insult! I will use it against you eventually...";
+					
+				}
 			}
 			else if(body.trim().equals("awgs list")){
 
@@ -375,7 +394,7 @@ public class RealtimeModule implements PacketListener {
 					String query = "%"+ tokens[1] + "%";
 					List<Item> items = itemService.search(query);
 					Iterator<Item>itemsit = items.iterator();
-					response = "ACIS Working Group Series (results for query '" + tokens[1] + "')\n------------------------------------------";
+					response = "ACIS Working Group Series (" + items.size() + " results for query '" + tokens[1] + "')\n------------------------------------------";
 					while(itemsit.hasNext()){
 						Item i = itemsit.next();
 						response += "\n  - " + i.getId() + ": " + i.getName();
