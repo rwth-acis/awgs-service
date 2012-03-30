@@ -36,6 +36,7 @@ INSERT INTO ITEM VALUES ('AWGS-2012-004','Todays top RESTful Web services and wh
 
 INSERT INTO ROOM VALUES (1, 'renzel@role.dbis.rwth-aachen.de','awgs-test@muc.role.dbis.rwth-aachen.de','awgs-bot');
 INSERT INTO ROOM VALUES (2, 'renzel@role.dbis.rwth-aachen.de','awgs-test2@muc.role.dbis.rwth-aachen.de','awgs-bot');
+INSERT INTO ROOM VALUES (3, 'renzel@role.dbis.rwth-aachen.de','atlas-confidential@internal.role.dbis.rwth-aachen.de','awgs-bot');
 
 INSERT INTO INSULT VALUES (1, 'Your mother stinks while shitting!','renzel@role.dbis.rwth-aachen.de', NOW());
 INSERT INTO INSULT VALUES (2, 'Drop dead, sucker!', 'renzel@role.dbis.rwth-aachen.de', NOW());
