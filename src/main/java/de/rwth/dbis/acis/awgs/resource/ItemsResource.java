@@ -22,8 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import de.rwth.dbis.acis.awgs.entity.Item;
+import de.rwth.dbis.acis.awgs.entity.ItemType;
 import de.rwth.dbis.acis.awgs.module.realtime.RealtimeModule;
 import de.rwth.dbis.acis.awgs.service.ItemService;
+import de.rwth.dbis.acis.awgs.service.ItemTypeService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 import de.rwth.dbis.acis.awgs.util.CORS;
 
@@ -33,6 +35,9 @@ public class ItemsResource extends URIAwareResource{
 
 	@Autowired
 	ItemService itemService;
+	
+	@Autowired
+	ItemTypeService itemTypeService;
 
 	@Autowired
 	RealtimeModule realtimeModule;
@@ -62,7 +67,7 @@ public class ItemsResource extends URIAwareResource{
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
 				jom.put("url", i.getUrl());
-				jom.put("status", i.getStatus());
+				jom.put("type", i.getTypeInstance());
 				jom.put("owner" , i.getOwner());
 				jom.put("lastupdate",i.getLastUpdate().toGMTString());
 				jo.accumulate("items", jom);
@@ -85,11 +90,18 @@ public class ItemsResource extends URIAwareResource{
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 
-		if(o == null || !(o.has("name")) || !(o.has("description")) || !(o.has("url")) || !(o.has("status"))){
+		if(o == null || !(o.has("name")) || !(o.has("description")) || !(o.has("url")) || !(o.has("type"))){
 			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-
+		
+		ItemType itype = itemTypeService.get(o.getInt("type"));
+		
+		if(itype == null){
+			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
+			return CORS.makeCORS(r,_corsHeaders);
+		}
+		
 		Item newItem = new Item();
 
 		String newid = itemService.getNextItemId();
@@ -99,17 +111,16 @@ public class ItemsResource extends URIAwareResource{
 		newItem.setDescription(o.getString("description"));
 		newItem.setUrl(o.getString("url"));
 
+		
 		String[] authorize = Authentication.parseAuthHeader(auth);
 		String jid = authorize[0];
 
 		newItem.setOwner(jid);
-		newItem.setStatus(o.getInt("status"));
+		newItem.setType(itype.getId());
 		newItem.setLastUpdate(new Date());
 
 		if(itemService.getByUrl(newItem.getUrl()) == null) {
 			itemService.save(newItem);
-
-
 
 			URI location;
 			try {

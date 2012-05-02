@@ -60,8 +60,8 @@ public class ItemResource extends URIAwareResource{
 		body += "<label for='name' style='font-weight:bold;'>Name:</label><div id='name'>" + i.getName() + "</div>";
 		body += "<label for='owner' style='font-weight:bold;'>Owner:</label><div id='owner'><a href='xmpp:" + i.getOwner() + "'>" + i.getOwner() + "</a></div>";
 		body += "<label for='description' style='font-weight:bold;'>Description:</label><div id='description'>" + i.getDescription() + "</div>";
-		body += "<label for='url' style='font-weight:bold;'>Document URL:</label><div id='url'><a href='" + i.getUrl() + "'>" + i.getUrl() + "</a></div>";
-		body += "<label for='status' style='font-weight:bold;'>Status:</label><div id='status'>" + i.getStatus()+ "</div>";
+		body += "<label for='url' style='font-weight:bold;'>URL:</label><div id='url'><a href='" + i.getUrl() + "'>" + i.getUrl() + "</a></div>";
+		body += "<label for='status' style='font-weight:bold;'>Type:</label><div id='type'>" + i.getTypeInstance().getName() + "</div>";
 		body += "<label for='lastup' style='font-weight:bold;'>Last Update:</label><div id='lastup'>" + i.getLastUpdate().toGMTString() + "</div>";
 		
 		String html = HTMLHelper.getHtmlDoc(title,body);
