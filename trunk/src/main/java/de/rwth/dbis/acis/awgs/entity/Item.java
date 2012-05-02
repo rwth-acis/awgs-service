@@ -5,10 +5,13 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlRootElement;
+  
 
 @Entity
 @Table(name = "ITEM")
@@ -32,16 +35,20 @@ public class Item {
 	@Column(name = "NAME", nullable = false)
 	private String name;
 	
-	@Column(name = "DESCRIPTION", nullable=false)
+	@Column(name = "DESCRIPTION", nullable = false)
 	private String description;
 	
-	@Column(name = "STATUS", nullable=false)
-	private int status;
+	@Column(name = "TYPE", nullable = false)
+	private int type;
 	
-	@Column(name = "OWNER", nullable=false)
+	@ManyToOne
+	@JoinColumn(name="TYPE", referencedColumnName="ID", insertable = false, updatable = false)
+	private ItemType typeInstance;
+	
+	@Column(name = "OWNER", nullable = false)
 	private String owner;
 	
-	@Column(name = "LASTUPDATE", nullable=false)
+	@Column(name = "LASTUPDATE", nullable = false)
 	private Date lastUpdate;
 	
 	
@@ -77,12 +84,16 @@ public class Item {
 		this.description = description;
 	}
 
-	public int getStatus() {
-		return status;
+	public int getType() {
+		return type;
 	}
 
-	public void setStatus(int status) {
-		this.status = status;
+	public void setType(int type) {
+		this.type = type;
+	}
+
+	public ItemType getTypeInstance() {
+		return typeInstance;
 	}
 
 	public String getOwner() {

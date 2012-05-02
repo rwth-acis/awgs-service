@@ -421,10 +421,10 @@ public class RealtimeModule implements PacketListener {
 
 						String status;
 
-						if(i.getStatus() == 0){
+						if(i.getType() == 0){
 							status = "draft";
 						}
-						else if(i.getStatus() == 1){
+						else if(i.getType() == 1){
 							status = "submitted";
 						}
 						else{

@@ -164,7 +164,7 @@ label {
 			$("#register-name").val("");
 			$("#register-description").val("");
 			$("#register-url").val("");
-			$("#register-status").val("");
+			$("#register-type").val("");
 		}
 		
 		function init() {
@@ -260,7 +260,7 @@ label {
 									name: $("#register-name").val(),
 								  description: $("#register-description").val(),
 								  url: $("#register-url").val(),
-								  status: $("#register-status").val()
+								  type: $("#register-type").val()
 							};
 							
 							awgs.createItem(item,function(result){
@@ -345,14 +345,11 @@ label {
 				<br /> <label for="register-url">URL:</label> <input type="text"
 					id="register-url" value="" size="50"
 					class="text ui-widget-content ui-corner-all" /><br /> <label
-					for="register-status">Status:</label> <select id="register-status"
-					name="register-status" size="1"
+					for="register-type">Status:</label> <select id="register-type"
+					name="register-type" size="1"
 					class="ui-widget-content ui-corner-all">
-					<option value="0">Draft</option>
-					<option value="1">Submitted</option>
-					<option value="2">Rejected</option>
-					<option value="3">Under Review</option>
-					<option value="4">Published</option>
+					<option value="1">Valid</option>
+					<option value="100">Invalid</option>
 				</select>
 			</fieldset>
 		</form>
