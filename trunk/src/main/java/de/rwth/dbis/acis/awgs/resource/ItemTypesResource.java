@@ -2,7 +2,6 @@ package de.rwth.dbis.acis.awgs.resource;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -21,20 +20,15 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import de.rwth.dbis.acis.awgs.entity.Item;
 import de.rwth.dbis.acis.awgs.entity.ItemType;
 import de.rwth.dbis.acis.awgs.module.realtime.RealtimeModule;
-import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.service.ItemTypeService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 import de.rwth.dbis.acis.awgs.util.CORS;
 
-@Path("/items")
+@Path("/items/types")
 @Component
-public class ItemsResource extends URIAwareResource{
-
-	@Autowired
-	ItemService itemService;
+public class ItemTypesResource extends URIAwareResource{
 	
 	@Autowired
 	ItemTypeService itemTypeService;
@@ -46,31 +40,30 @@ public class ItemsResource extends URIAwareResource{
 	@Produces("application/json")
 	public Response getItems(@QueryParam(value="q") String query) {
 		try {
-			List<Item> items;
+			List<ItemType> itemTypes;
 			if(null == query || query.equals("")){
-				items = itemService.getAll();
+				itemTypes = itemTypeService.getAll();
 			}
 			else {
-				items = itemService.search(query);
+				itemTypes = itemTypeService.search(query);
 			}
-			Iterator<Item> itemit = items.iterator();
+			Iterator<ItemType> itemTypeIt = itemTypes.iterator();
 
 			JSONObject jo = new JSONObject();
 			
+			System.out.println("Searched for query: " + query);
+			System.out.println("Found results: " + itemTypes.size());
+			
 			//System.out.println("Passed URI: " + System.getProperty("service.uri"));
 			
-			while(itemit.hasNext()){
-				Item i = itemit.next();
+			while(itemTypeIt.hasNext()){
+				ItemType i = itemTypeIt.next();
 				JSONObject jom = new JSONObject();
 				jom.put("resource", getEndpointUri() + "/" +  i.getId());
 				jom.put("id", i.getId());
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
-				jom.put("url", i.getUrl());
-				jom.put("type", i.getTypeInstance());
-				jom.put("owner" , i.getOwner());
-				jom.put("lastupdate",i.getLastUpdate().toGMTString());
-				jo.accumulate("items", jom);
+				jo.accumulate("itemtypes", jom);
 			}
 			
 			Response.ResponseBuilder r = Response.ok(jo);
@@ -90,41 +83,26 @@ public class ItemsResource extends URIAwareResource{
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 
-		if(o == null || !(o.has("name")) || !(o.has("description")) || !(o.has("url")) || !(o.has("type"))){
+		if(o == null || !(o.has("name")) || !(o.has("description"))){
 			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 		
-		ItemType itype = itemTypeService.get(o.getInt("type"));
-		
-		if(itype == null){
-			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
-			return CORS.makeCORS(r,_corsHeaders);
-		}
-		
-		Item newItem = new Item();
+		ItemType newItemType = new ItemType();
 
-		String newid = itemService.getNextItemId();
+		newItemType.setName(o.getString("name"));
+		newItemType.setDescription(o.getString("description"));
 
-		newItem.setId(newid);
-		newItem.setName(o.getString("name"));
-		newItem.setDescription(o.getString("description"));
-		newItem.setUrl(o.getString("url"));
-
-		String jid = Authentication.parseAuthHeader(auth)[0];
-
-		newItem.setOwner(jid);
-		newItem.setType(itype.getId());
-		newItem.setLastUpdate(new Date());
-
-		if(itemService.getByUrl(newItem.getUrl()) == null) {
-			itemService.save(newItem);
+		if(itemTypeService.getByName(newItemType.getName()) == null) {
+			itemTypeService.save(newItemType);
 
 			URI location;
 			try {
-				location = new URI(getEndpointUri().toASCIIString() + "/" + newItem.getId());
+				location = new URI(getEndpointUri().toASCIIString() + "/" + newItemType.getId());
 
-				String msg = newItem.getOwner() + " registered item '" + newItem.getName() + "' ("  + location + ").";
+				String jid = Authentication.parseAuthHeader(auth)[0];
+				
+				String msg = jid + " added new item type '" + newItemType.getName() + "' ("  + newItemType.getDescription() + ").";
 				realtimeModule.broadcastToRooms(msg, null);
 
 				Response.ResponseBuilder r = Response.created(location);
@@ -144,4 +122,5 @@ public class ItemsResource extends URIAwareResource{
 	}
 
 }
+
 
