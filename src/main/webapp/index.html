@@ -106,11 +106,8 @@ label {
 			itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th><th> </th></tr>"
 			for(var i=0;i<items.length;i++){
 				var item = items[i];
-				console.log(item);
-				//console.log("Item " + item.id + " - " + item.name);
-				console.log("Owner: " + item.owner +  " Me: " + awgs.getUser());
+				
 				if(item.owner == awgs.getUser()){
-					console.log("Item " + item.id + " is owned by me...");
 					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td><td><button style='font-size:12px;width:70px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='deleteItem(\"" + item.id + "\");'>Delete</button></td></tr>";
 				}	else {
 					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td><td></td></tr>";
@@ -225,9 +222,32 @@ label {
 			$("#search").keyup(function(event){
 				var q = $("#search").val();
 				if(q.length > 1){
-					console.log("Search query changed to " + $("#search").val());
 					updateItems();
 				}
+			});
+			
+			$("#register-type").autocomplete({source: function(req,resp){
+				awgs.searchItemTypes(req.term,function(result){
+					var mres = new Array();
+					for(var i=0; i<result.length; i++){
+						var t = result[i];
+						var mt = {label: t.name, value: t.id};
+						mres.push(mt);
+						console.log(mres);
+					}
+					console.log(mres);
+					resp(mres);
+					console.log(result)
+				});
+				
+			},
+			minLength: 2,
+			select: function(event, ui){
+				console.log(event);
+				console.log(ui);
+			}, focus: function(){
+				return false;
+			}
 			});
 			
 			$("#dialog-register").dialog({
@@ -253,6 +273,11 @@ label {
 						if($("#register-url").val() == ""){
 							doit = false;
 							$("#register-error").html("Please specify document resource URL.");
+						}
+						
+						if($("#register-type").val() == ""){
+							doit = false;
+							$("#register-error").html("Please specify document type.");
 						}
 						
 						if(doit){
@@ -344,13 +369,20 @@ label {
 					class="text ui-widget-content ui-corner-all"></textarea>
 				<br /> <label for="register-url">URL:</label> <input type="text"
 					id="register-url" value="" size="50"
-					class="text ui-widget-content ui-corner-all" /><br /> <label
-					for="register-type">Status:</label> <select id="register-type"
+					class="text ui-widget-content ui-corner-all" /><br/>  
+					
+				<div class="ui-widget">
+					<label for="register-type">Type:</label>
+					<input type="text" value="" id="register-type" />
+				</div>
+					<!--
+					<select id="register-type"
 					name="register-type" size="1"
 					class="ui-widget-content ui-corner-all">
-					<option value="1">Valid</option>
-					<option value="100">Invalid</option>
-				</select>
+						<option value="1">Valid</option>
+						<option value="100">Invalid</option>
+					</select>
+					-->
 			</fieldset>
 		</form>
 		<span id="register-error"></span>

@@ -12,8 +12,10 @@ import javax.xml.bind.annotation.XmlRootElement;
 @Entity
 @Table(name="ITEMTYPE")
 @NamedQueries({
+	@NamedQuery(name = "ItemType.getAll", query = "SELECT t FROM ItemType t ORDER BY t.id DESC"),
 	@NamedQuery(name = "ItemType.get", query = "SELECT t FROM ItemType t WHERE t.id=:id"),
-	@NamedQuery(name = "ItemType.search", query = "SELECT t FROM ItemType t where t.name like :query OR t.description LIKE :query ORDER BY t.id DESC LIMIT 0,1")
+	@NamedQuery(name = "ItemType.getByName", query = "SELECT t FROM ItemType t WHERE t.name=:name"),
+	@NamedQuery(name = "ItemType.search", query = "SELECT t FROM ItemType t where t.name like :query ORDER BY t.id DESC LIMIT 0,1")
 })
 @XmlRootElement
 public class ItemType {

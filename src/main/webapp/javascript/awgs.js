@@ -16,6 +16,8 @@ function AwgsClient(endpointUrl){
 	// store a couple of central resource URIs for later usage
 	this._serviceEndpoint = endpointUrl;
 	this._itemsResource = this._serviceEndpoint + "items";
+	this._itemTypesResource = this._serviceEndpoint + "items/types";
+	
 	this._authResource = this._serviceEndpoint + "auth";
 	
 	// since RESTful Web Services are stateless by design, credentials will have to be sent
@@ -170,6 +172,25 @@ AwgsClient.prototype.searchItems = function(query, callback){
 		else{
 			var ar = [];
 			ar.push(data.items);
+		}
+		callback(ar);		
+	});
+};
+
+AwgsClient.prototype.searchItemTypes = function(query, callback){
+	var resource = this._itemTypesResource + "?q=" + query;
+	
+	$.get(resource, function(data) {
+		var ar;
+		if(typeof data.itemtypes == 'undefined'){
+			ar = [];
+		}
+		else if(data.itemtypes.length){
+			ar = data.itemtypes;
+		}
+		else{
+			var ar = [];
+			ar.push(data.itemtypes);
 		}
 		callback(ar);		
 	});

@@ -29,14 +29,37 @@ public class ItemTypeServiceJpa implements ItemTypeService {
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
+	public List<ItemType> getAll() {
+		Query query = entityManager.createNamedQuery("ItemType.getAll");
+		List<ItemType> itemTypes = null;
+		itemTypes = query.getResultList();
+		return itemTypes;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
 	public ItemType get(int id){
 		Query queryFindItem = entityManager.createNamedQuery("ItemType.get");
 		queryFindItem.setParameter("id", id);
 
-		List<ItemType> items = queryFindItem.getResultList();
+		List<ItemType> itemTypes = queryFindItem.getResultList();
 		ItemType result = null;
-		if(items.size() > 0) {
-			result = items.get(0);
+		if(itemTypes.size() > 0) {
+			result = itemTypes.get(0);
+		}
+		return result;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
+	public ItemType getByName(String name){
+		Query queryFindItem = entityManager.createNamedQuery("ItemType.getByName");
+		queryFindItem.setParameter("name", name);
+
+		List<ItemType> itemTypes = queryFindItem.getResultList();
+		ItemType result = null;
+		if(itemTypes.size() > 0) {
+			result = itemTypes.get(0);
 		}
 		return result;
 	}
