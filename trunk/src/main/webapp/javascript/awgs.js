@@ -199,14 +199,14 @@ AwgsClient.prototype.searchItemTypes = function(query, callback){
 AwgsClient.prototype.getItem = function(id, callback){
 	var resource = this._itemsResource + "/" + id;
 	
-	$.get(resource, function(data) {
-		callback(m,data);		
+	$.getJSON(resource, function(data) {
+		callback(data);		
 	});
 };
 
 AwgsClient.prototype.deleteItem = function(id, callback){	
 	if(!this.authenticated){
-		alert("Not logged in");
+		alert("You must be authenticated for this operation! Please log in first.");
 	} 
 	var resource = this._itemsResource + "/" + id;
 	
@@ -245,10 +245,102 @@ AwgsClient.prototype.deleteItem = function(id, callback){
 	});
 };
 
+AwgsClient.prototype.updateItem = function(id,m,callback){
+	
+	if(!this.authenticated){
+		alert("You must be authenticated for this operation! Please log in first.");
+	} 
+	var resource = this._itemsResource + "/" + id;
+	
+	var that = this;
+	
+	$.ajax({
+		url: resource,
+		type: "PUT",
+		data: JSON.stringify(m),
+		beforeSend: function(xhr){
+			xhr.setRequestHeader("Authorization", "Basic " + that._jidcred);
+		},
+		// process result in case of success and feed result to callback function passed by developer
+		success: function(data,status,xhr){
+			var result = {};
+			result.status = status;
+			result.data = data;
+			callback(result);
+		},
+		// process result in case of different HTTP statuses and feed result to callback function passed by developer
+		statusCode: {
+			400: function(){
+				callback({status:"badrequest"});
+			},
+			401: function(){
+				callback({status:"unauthorized"});
+			},
+			404: function(){
+				callback({status:"notfound"});
+			},
+			500: function(){
+				callback({status:"servererror"});
+			},
+			
+		},
+		contentType: "application/json",
+		cache: false
+	});
+}
+
+AwgsClient.prototype.createItemType = function(m, callback){
+	
+	if(!this.authenticated){
+		alert("You must be authenticated for this operation! Please log in first.");
+	} 
+	var resource = this._itemTypesResource;
+	
+	var that = this;
+	
+	// do AJAX call to Web Service using jQuery.ajax
+	$.ajax({
+		url: resource,
+		type: "POST",
+		data: JSON.stringify(m), // JSON data must be transformed to a String representation
+		beforeSend: function(xhr){
+			xhr.setRequestHeader("Authorization", "Basic " + that._jidcred);
+		},
+		// process result in case of success and feed result to callback function passed by developer
+		success: function(data,status,xhr){
+			var result = {};
+			result.status = status;
+			result.data = data;
+			callback(result);
+		},
+		// process result in case of different HTTP statuses and feed result to callback function passed by developer
+		statusCode: {
+			400: function(){
+				callback({status:"badrequest"});
+			},
+			401: function(){
+				callback({status:"unauthorized"});
+			},
+			404: function(){
+				callback({status:"notfound"});
+			},
+			409: function(){
+				callback({status:"conflict"});
+			},
+			500: function(){
+				callback({status:"servererror"});
+			},
+			
+		},
+		contentType: "application/json",
+		cache: false
+	});
+};
+
 AwgsClient.prototype.createItem = function(m, callback){
 	
 	if(!this.authenticated){
-		alert("Not logged in");
+		alert("You must be authenticated for this operation! Please log in first.");
 	} 
 	var resource = this._itemsResource;
 	
@@ -263,10 +355,10 @@ AwgsClient.prototype.createItem = function(m, callback){
 			xhr.setRequestHeader("Authorization", "Basic " + that._jidcred);
 		},
 		// process result in case of success and feed result to callback function passed by developer
-		success: function(uri){
+		success: function(data,status,xhr){
 			var result = {};
-			result.status = "success";
-			result.uri = uri;
+			result.status = status;
+			result.data = data;
 			
 			callback(result);
 		},

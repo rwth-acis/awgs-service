@@ -1,7 +1,9 @@
 package de.rwth.dbis.acis.awgs.resource;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -95,6 +97,13 @@ public class ItemsResource extends URIAwareResource{
 			return CORS.makeCORS(r,_corsHeaders);
 		}
 		
+		try {
+			URL u = new URL(o.getString("url"));
+		} catch (MalformedURLException e1) {
+			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
+			return CORS.makeCORS(r,_corsHeaders);
+		}
+		
 		ItemType itype = itemTypeService.get(o.getInt("type"));
 		
 		if(itype == null){
@@ -124,7 +133,7 @@ public class ItemsResource extends URIAwareResource{
 			try {
 				location = new URI(getEndpointUri().toASCIIString() + "/" + newItem.getId());
 
-				String msg = newItem.getOwner() + " registered item '" + newItem.getName() + "' ("  + location + ").";
+				String msg = newItem.getOwner() + " registered AWGS ID " + newItem.getId() + ": " + newItem.getName() + " ("  + location + ").";
 				realtimeModule.broadcastToRooms(msg, null);
 
 				Response.ResponseBuilder r = Response.created(location);

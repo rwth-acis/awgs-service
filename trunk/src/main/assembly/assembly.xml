@@ -1,5 +1,5 @@
 <assembly>
-	<id>0.1</id>
+	<id>0.2</id>
 	<formats>
 		<format>zip</format>
 		<format>tar.gz</format>
@@ -27,9 +27,9 @@
 			</includes>
 		</fileSet>
 
-		<!-- Includes for SDK bin directory -->
+		<!-- Includes bin directory -->
 
-		<!-- include start scripts for local development server -->
+		<!-- include start scripts for AWGS service -->
 		<fileSet>
 			<outputDirectory>awgs-service-${project.version}/bin</outputDirectory>
 			<directory>${basedir}/src/main/assembly/bin</directory>
@@ -40,30 +40,4 @@
 		</fileSet>
 	</fileSets>
 	
-	<!-- Include development server start page -->
-	<!-- Add filtering to files where version number etc. need be added -->
-	<!-- 
-	<files>
-		<file>
-			<source>${basedir}/src/main/webapp/VERSION</source>
-			<outputDirectory>role-${project.version}-sdk</outputDirectory>
-			<filtered>true</filtered>
-		</file>
-		<file>
-			<source>${basedir}/src/main/webapp/index.html</source>
-			<outputDirectory>role-${project.version}-sdk</outputDirectory>
-			<filtered>true</filtered>
-		</file>
-		<file>
-			<source>${basedir}/src/main/webapp/doc/gadget/samples/index.html</source>
-			<outputDirectory>role-${project.version}-sdk/src/gadget/samples</outputDirectory>
-			<filtered>true</filtered>
-		</file>
-		<file>
-			<source>${basedir}/src/main/webapp/doc/gadget/development/index.html</source>
-			<outputDirectory>role-${project.version}-sdk/src/gadget/development</outputDirectory>
-			<filtered>true</filtered>
-		</file>
-	</files>
-	-->	
 </assembly>
