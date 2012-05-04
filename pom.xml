@@ -4,7 +4,7 @@
     <groupId>de.rwth-aachen.dbis</groupId>
     <artifactId>awgs-service</artifactId>
     <packaging>war</packaging>
-    <version>0.1</version>
+    <version>0.2</version>
     <name>AWGS - Advanced Working Group Series Service</name>
     <build>
         <finalName>awgs-service</finalName>

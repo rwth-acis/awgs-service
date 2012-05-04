@@ -38,7 +38,7 @@ public class ItemTypesResource extends URIAwareResource{
 
 	@GET
 	@Produces("application/json")
-	public Response getItems(@QueryParam(value="q") String query) {
+	public Response getItemTypes(@QueryParam(value="q") String query) {
 		try {
 			List<ItemType> itemTypes;
 			if(null == query || query.equals("")){
@@ -76,7 +76,7 @@ public class ItemTypesResource extends URIAwareResource{
 
 	@POST
 	@Consumes("application/json")
-	public Response putItem(@HeaderParam("authorization") String auth, JSONObject o) throws JSONException {
+	public Response putItemType(@HeaderParam("authorization") String auth, JSONObject o) throws JSONException {
 
 		if(!realtimeModule.isAuthenticated(auth)){
 			Response.ResponseBuilder r = Response.status(Status.UNAUTHORIZED);
@@ -95,17 +95,25 @@ public class ItemTypesResource extends URIAwareResource{
 
 		if(itemTypeService.getByName(newItemType.getName()) == null) {
 			itemTypeService.save(newItemType);
+			
+			ItemType retItemType = itemTypeService.getByName(newItemType.getName());
 
 			URI location;
 			try {
-				location = new URI(getEndpointUri().toASCIIString() + "/" + newItemType.getId());
-
+				location = new URI(getEndpointUri().toASCIIString() + "/" + retItemType.getId());
+				System.out.println("Created item type: " + location.toASCIIString());
 				String jid = Authentication.parseAuthHeader(auth)[0];
 				
-				String msg = jid + " added new item type '" + newItemType.getName() + "' ("  + newItemType.getDescription() + ").";
+				String msg = jid + " added new item type '" + retItemType.getName() + "' ("  + retItemType.getDescription() + ").";
 				realtimeModule.broadcastToRooms(msg, null);
+				
+				JSONObject jom = new JSONObject();
+				jom.put("resource", getEndpointUri().toASCIIString() + "/" +  retItemType.getId());
+				jom.put("id", retItemType.getId());
+				jom.put("name",retItemType.getName());
+				jom.put("description", retItemType.getDescription());
 
-				Response.ResponseBuilder r = Response.created(location);
+				Response.ResponseBuilder r = Response.created(location).entity(jom);
 				return CORS.makeCORS(r,_corsHeaders);
 
 
