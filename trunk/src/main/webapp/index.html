@@ -108,9 +108,9 @@ label {
 				var item = items[i];
 				
 				if(item.owner == awgs.getUser()){
-					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td><td><button style='font-size:12px;width:60px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='deleteItem(\"" + item.id + "\");'>Delete</button><button style='font-size:12px;width:60px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='updateItem(\"" + item.id + "\");'>Edit</td></tr>";
+					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate.substr(0,19) + "</td><td><button style='font-size:12px;width:60px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='deleteItem(\"" + item.id + "\");'>Delete</button><button style='font-size:12px;width:60px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='updateItem(\"" + item.id + "\");'>Edit</td></tr>";
 				}	else {
-					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate + "</td><td></td></tr>";
+					itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate.substr(0,19) + "</td><td></td></tr>";
 				}
 			}
 			itemt += "</table>";
@@ -129,7 +129,9 @@ label {
 				$("#update-name").val(r.name);
 				$("#update-description").val(r.description);
 				$("#update-url").val(r.url);
-				$("#update-type-id").val(r.type);
+				$("#update-type-id").val(r.type.id);
+				$("#update-type").val(r.type.name);
+				
 				$("#dialog-update").dialog("open");
 			});
 			
@@ -297,7 +299,7 @@ label {
 				buttons: {
 					"Delete": function() {
 						
-						awgs.deleteItem($("#delete-id"), function(r){
+						awgs.deleteItem($("#delete-id").html(), function(r){
 							console.log(r);
 							if (r.status == "success"){
 								console.log("deleted successfully");
@@ -314,7 +316,7 @@ label {
 			$("#dialog-register").dialog({
 				autoOpen: false,
 				//height: 500,
-				width: 460,
+				width: 600,
 				modal: true,
 				buttons: {
 					"Register": function() {
@@ -380,7 +382,7 @@ label {
 			$("#dialog-update").dialog({
 				autoOpen: false,
 				//height: 500,
-				width: 460,
+				width: 600,
 				modal: true,
 				buttons: {
 					"Update": function() {
@@ -479,6 +481,10 @@ label {
 									console.log("Created item type " + result);
 									console.log(result);
 									$("#register-type-id").val(result.data.id);
+									$("#register-type").val(result.data.name);
+									$("#update-type-id").val(result.data.id);
+									$("#update-type").val(result.data.name);
+									
 									that.dialog("close");
 									$("#register-type-note").html("");
 								}

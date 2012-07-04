@@ -1,5 +1,5 @@
 <assembly>
-	<id>0.2</id>
+	<id>0.3</id>
 	<formats>
 		<format>zip</format>
 		<format>tar.gz</format>

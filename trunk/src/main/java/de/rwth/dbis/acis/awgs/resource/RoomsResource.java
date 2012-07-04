@@ -15,6 +15,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.jivesoftware.smack.XMPPException;
@@ -89,8 +90,8 @@ public class RoomsResource extends URIAwareResource{
 
 		RoomsAssociation ra = new RoomsAssociation();
 		
-		ra.setRoom(o.getString("room"));
-		ra.setNick(o.getString("nick"));
+		ra.setRoom(StringEscapeUtils.escapeXml(o.getString("room")));
+		ra.setNick(StringEscapeUtils.escapeXml(o.getString("nick")));
 		ra.setUser(jid);
 
 		if(roomsService.get(ra.getUser(),ra.getRoom()) == null) {
