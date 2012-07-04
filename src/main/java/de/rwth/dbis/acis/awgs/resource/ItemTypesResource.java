@@ -15,6 +15,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,8 +91,8 @@ public class ItemTypesResource extends URIAwareResource{
 		
 		ItemType newItemType = new ItemType();
 
-		newItemType.setName(o.getString("name"));
-		newItemType.setDescription(o.getString("description"));
+		newItemType.setName(StringEscapeUtils.escapeXml(o.getString("name")));
+		newItemType.setDescription(StringEscapeUtils.escapeXml(o.getString("description")));
 
 		if(itemTypeService.getByName(newItemType.getName()) == null) {
 			itemTypeService.save(newItemType);

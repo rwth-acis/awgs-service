@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,15 +47,32 @@ public class ItemResource extends URIAwareResource{
 
 	@GET
 	@Produces("application/json")
-	public Response getItem(@PathParam("id") String id) {
+	public Response getItem(@PathParam("id") String id) throws JSONException {
 
 		Item i = itemService.getById(id);
-
 		if (i == null){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-		Response.ResponseBuilder r = Response.ok(i);
+		
+		ItemType it = i.getTypeInstance();
+		
+		JSONObject tjom = new JSONObject();
+		tjom.put("id", it.getId());
+		tjom.put("name", it.getName());
+		tjom.put("description",it.getDescription());
+		
+		JSONObject jom = new JSONObject();
+		jom.put("resource", getEndpointUri() + "/" +  i.getId());
+		jom.put("id", i.getId());
+		jom.put("name",i.getName());
+		jom.put("description", i.getDescription());
+		jom.put("url", i.getUrl());
+		jom.put("type", tjom);
+		jom.put("owner" , i.getOwner());
+		jom.put("lastupdate",i.getLastUpdate());
+		
+		Response.ResponseBuilder r = Response.ok(jom);
 		return CORS.makeCORS(r,_corsHeaders);
 	}
 
@@ -119,17 +137,24 @@ public class ItemResource extends URIAwareResource{
 		boolean modified = false;
 
 		if(o.has("name")){
-			i.setName(o.getString("name"));
+			String escapedName = StringEscapeUtils.escapeXml(o.getString("name"));
+			if(!o.getString("name").equals(escapedName)){
+				System.err.println("Warning: New item name had to be escaped! \nOriginal Item Name: " + o.getString("name"));
+			}
+			i.setName(StringEscapeUtils.escapeXml(o.getString("name")));
 			modified = true;
 		}
 
 		if(o.has("description")){
-			i.setDescription(o.getString("description"));
+			String escapedDesc = StringEscapeUtils.escapeXml(o.getString("description"));
+			if(!o.getString("description").equals(escapedDesc)){
+				System.err.println("Warning: New item description had to be escaped! \nOriginal Item Description: " + o.getString("description"));
+			}
+			i.setDescription(escapedDesc);
 			modified = true;
 		}
 
 		if(o.has("url")){
-			System.out.println("Found URL: " + o.getString("url"));
 			try {
 				URL u = new URL(o.getString("url"));
 				i.setUrl(o.getString("url"));
@@ -141,6 +166,7 @@ public class ItemResource extends URIAwareResource{
 		}
 
 		if(o.has("type")){
+
 			ItemType itype = itemTypeService.get(o.getInt("type"));
 
 			if(itype == null){
@@ -154,10 +180,9 @@ public class ItemResource extends URIAwareResource{
 		if(modified){
 			i.setLastUpdate(new Date());
 			itemService.update(i);
-
 			
 			try {
-				URI location = new URI(getEndpointUri().toASCIIString() + "/" + i.getId());
+				URI location = new URI(getEndpointUri().toASCIIString());
 				String msg = i.getOwner() + " updated " + i.getId() + ": " + i.getName() + " ("  + location + ").";
 
 				realtimeModule.broadcastToRooms(msg,null);
@@ -175,8 +200,6 @@ public class ItemResource extends URIAwareResource{
 			Response.ResponseBuilder r = Response.status(Status.NOT_MODIFIED);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-
-
 	}
 
 	@DELETE

@@ -18,10 +18,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.mysql.jdbc.log.Log;
 
 import de.rwth.dbis.acis.awgs.entity.Item;
 import de.rwth.dbis.acis.awgs.entity.ItemType;
@@ -63,15 +66,22 @@ public class ItemsResource extends URIAwareResource{
 			
 			while(itemit.hasNext()){
 				Item i = itemit.next();
+				ItemType it = i.getTypeInstance();
+				
+				JSONObject tjom = new JSONObject();
+				tjom.put("id", it.getId());
+				tjom.put("name", it.getName());
+				tjom.put("description",it.getDescription());
+				
 				JSONObject jom = new JSONObject();
 				jom.put("resource", getEndpointUri() + "/" +  i.getId());
 				jom.put("id", i.getId());
 				jom.put("name",i.getName());
 				jom.put("description", i.getDescription());
 				jom.put("url", i.getUrl());
-				jom.put("type", i.getTypeInstance());
+				jom.put("type", tjom);
 				jom.put("owner" , i.getOwner());
-				jom.put("lastupdate",i.getLastUpdate().toGMTString());
+				jom.put("lastupdate",i.getLastUpdate());
 				jo.accumulate("items", jom);
 			}
 			
@@ -116,8 +126,19 @@ public class ItemsResource extends URIAwareResource{
 		String newid = itemService.getNextItemId();
 
 		newItem.setId(newid);
-		newItem.setName(o.getString("name"));
-		newItem.setDescription(o.getString("description"));
+		
+		String escapedName = StringEscapeUtils.escapeXml(o.getString("name"));
+		String escapedDesc = StringEscapeUtils.escapeXml(o.getString("description"));
+		newItem.setName(escapedName);
+		newItem.setDescription(escapedDesc);
+		
+		if(!o.getString("name").equals(escapedName)){
+			System.err.println("Warning: New item name had to be escaped! \nOriginal Item Name: " + o.getString("name"));
+		}
+		if(!o.getString("description").equals(escapedDesc)){
+			System.err.println("Warning: New item description had to be escaped! \nOriginal Item Description: " + o.getString("description"));
+		}
+		
 		newItem.setUrl(o.getString("url"));
 
 		String jid = Authentication.parseAuthHeader(auth)[0];
