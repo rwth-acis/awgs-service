@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Date;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -13,9 +14,13 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -29,13 +34,18 @@ import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.service.ItemTypeService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 import de.rwth.dbis.acis.awgs.util.CORS;
-import de.rwth.dbis.acis.awgs.util.HTMLHelper;
 
 
 @Path("/items/{id}")
 @Component
 public class ItemResource extends URIAwareResource{
 
+	@Context
+	ServletContext context;
+	
+	@Context
+	UriInfo info;
+	
 	@Autowired
 	ItemService itemService;
 
@@ -48,7 +58,7 @@ public class ItemResource extends URIAwareResource{
 	@GET
 	@Produces("application/json")
 	public Response getItem(@PathParam("id") String id) throws JSONException {
-
+		
 		Item i = itemService.getById(id);
 		if (i == null){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
@@ -79,26 +89,34 @@ public class ItemResource extends URIAwareResource{
 	@GET
 	@Produces("text/html")
 	public Response getItemHtml(@PathParam("id") String id) {
-
+		
 		Item i = itemService.getById(id);
 		if (i == null){
 			Response.ResponseBuilder r = Response.status(Status.NOT_FOUND);
 			return CORS.makeCORS(r,_corsHeaders);
 		}
-
-		String title = "ACIS Working Group Series " + id;
-		String body = "<h1>ACIS Working Group Series " + id + "</h1>";
-
-		body += "<label for='name' style='font-weight:bold;'>Name:</label><div id='name'>" + i.getName() + "</div>";
-		body += "<label for='owner' style='font-weight:bold;'>Owner:</label><div id='owner'><a href='xmpp:" + i.getOwner() + "'>" + i.getOwner() + "</a></div>";
-		body += "<label for='description' style='font-weight:bold;'>Description:</label><div id='description'>" + i.getDescription() + "</div>";
-		body += "<label for='url' style='font-weight:bold;'>URL:</label><div id='url'><a href='" + i.getUrl() + "'>" + i.getUrl() + "</a></div>";
-		body += "<label for='status' style='font-weight:bold;'>Type:</label><div id='type'>" + i.getTypeInstance().getName() + "</div>";
-		body += "<label for='lastup' style='font-weight:bold;'>Last Update:</label><div id='lastup'>" + i.getLastUpdate().toGMTString() + "</div>";
-
-		String html = HTMLHelper.getHtmlDoc(title,body);
-
-		Response.ResponseBuilder r = Response.ok(html).header("Content-Type","text/html; charset=utf-8");
+		
+		StringTemplateGroup tg = new StringTemplateGroup("html",context.getRealPath("WEB-INF/template"));
+		StringTemplate t = tg.getInstanceOf("item");
+		
+		System.out.println("Host: " + info.getBaseUri().getHost());
+		System.out.println("Port: " + info.getBaseUri().getPort());
+		
+		String rootUri = "http://" + info.getBaseUri().getHost();
+		if(info.getBaseUri().getPort()>0){
+			rootUri += ":" + info.getBaseUri().getPort();
+		}
+		
+		t.setAttribute("root", rootUri);
+		t.setAttribute("item_id", i.getId());
+		t.setAttribute("item_title",i.getName());
+		t.setAttribute("item_description", i.getDescription());
+		t.setAttribute("item_type",i.getTypeInstance().getName());
+		t.setAttribute("item_url", i.getUrl());
+		t.setAttribute("item_owner", i.getOwner());
+		t.setAttribute("item_lastupdate", i.getLastUpdate().toString());
+		
+		Response.ResponseBuilder r = Response.ok(t.toString()).header("Content-Type","text/html; charset=utf-8");
 		return CORS.makeCORS(r,_corsHeaders);
 
 	}
