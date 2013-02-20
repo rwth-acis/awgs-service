@@ -17,7 +17,6 @@ function AwgsClient(endpointUrl){
 	this._serviceEndpoint = endpointUrl;
 	this._itemsResource = this._serviceEndpoint + "items";
 	this._itemTypesResource = this._serviceEndpoint + "items/types";
-	
 	this._authResource = this._serviceEndpoint + "auth";
 	
 	// since RESTful Web Services are stateless by design, credentials will have to be sent
