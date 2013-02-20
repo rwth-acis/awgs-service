@@ -144,7 +144,14 @@
 			<artifactId>mysql-connector-java</artifactId>
 			<version>5.1.6</version>
 		</dependency>
+<!-- Dependencies for StringTemplate (HTML Template Engine) -->
 
+	<dependency>
+		<groupId>org.antlr</groupId>
+		<artifactId>stringtemplate</artifactId>
+		<version>3.2</version>
+	</dependency>
+            
 <!-- Dependencies for XMPP Client support with Smack -->
 		<dependency>
     		<groupId>org.igniterealtime.smack</groupId>
