@@ -22,6 +22,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 	@NamedQuery(name = "Item.findItemUrl", query = "SELECT m FROM Item m where m.url=:url"),
 	@NamedQuery(name = "Item.search", query = "SELECT m FROM Item m where m.id like :query or m.name like :query or m.owner like :query or m.description like :query ORDER BY m.id DESC LIMIT 0,1")
 })
+
 @XmlRootElement
 public class Item {
 	

@@ -22,6 +22,8 @@ import org.jivesoftware.smackx.muc.RoomInfo;
 import org.jivesoftware.smackx.packet.VCard;
 import org.jivesoftware.smackx.packet.XHTMLExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
 import de.rwth.dbis.acis.awgs.entity.Insult;
 import de.rwth.dbis.acis.awgs.entity.Item;
@@ -31,20 +33,22 @@ import de.rwth.dbis.acis.awgs.service.ItemService;
 import de.rwth.dbis.acis.awgs.service.RoomsService;
 import de.rwth.dbis.acis.awgs.util.Authentication;
 
-
 /**
  * @author Dominik Renzel (renzel@dbis.rwth-aachen.de)
  * 
- *         The Realtime module provides management support for various real-time
- *         features of spaces. The core of this module consists of a connection
- *         to an XMPP server hosting two services we make use of:
- *         <ul>
- *         <li>Multi-User Chat Rooms: A multi user chat bot enables the usage of the AWGS services via conversations in XMPP Multiuser chat rooms.</li>
- *         </ul>
+ * This class provides support for various real-time features 
+ * based on the Extensible Messaging and Presence Protocol XMPP.
  * 
- *         This implementation has been tested successfully with ejabberd (v2.1.8).
+ * Equipped with an XMPP connection the AWGS service itself can act 
+ * as an own XMPP entity, i.e. the AWGS Bot. The AWGS Bot is listening to
+ * all incoming communication, i.e. IM messages from single users or 
+ * MUC messages from multi-user chat rooms. Furthermore, the AWGS Bot
+ * supports a conversation syntax featuring a couple of commands, which 
+ * are tightly connected to functionality of the AWGS service core.
+ * 
+ * This implementation has been tested successfully with ejabberd (v2.1.8).
  */
-public class RealtimeModule implements PacketListener {
+public class RealtimeModule implements PacketListener, ApplicationListener {
 
 	// default values for XMPP connection parameters, if none provided as system
 	// properties
@@ -74,8 +78,11 @@ public class RealtimeModule implements PacketListener {
 
 	Map<String,MultiUserChat> mucs = new HashMap<String,MultiUserChat>();
 
+	/**
+	 * Configures a singleton instance of this class managed by Spring. Serves as Spring init-method.
+	 */
 	public void configure() {
-
+		
 		System.out.println("Configuring Realtime Module");
 		// Set XMPP server host name.
 		// Use system property "xmpp.host", if available; else, use standard
@@ -87,7 +94,7 @@ public class RealtimeModule implements PacketListener {
 		}
 
 		// Set XMPP server port.
-		// Use system property "xmpp.mucs", if available and can be parsed as
+		// Use system property "xmpp.mucs", if available and if can be parsed as
 		// int; else, use standard value.
 		if (System.getProperty("xmpp.port") != null) {
 			try {
@@ -134,9 +141,11 @@ public class RealtimeModule implements PacketListener {
 		// to integrate with
 		return xmppHost.length() > 0;
 	}
-
+	
+	/**
+	 * Destroys a singleton instance of this class managed by Spring. Serves as Spring destroy-method.
+	 */
 	public void destroy(){
-		System.out.println("Realtime Module going down");
 		xc.sendPacket(new Presence(Presence.Type.unavailable));
 		xc.disconnect();
 	}
@@ -315,6 +324,10 @@ public class RealtimeModule implements PacketListener {
 		}
 	}
 
+	/**
+	 * Method to process incoming XMPP stanzas, in particular message stanzas. This method is used 
+	 * to define the syntax of messages to control the AWGS Bot.
+	 */
 	@Override
 	public void processPacket(Packet arg0) {
 		//System.out.println(" Package Class: " + arg0.getClass().getCanonicalName());
@@ -526,6 +539,12 @@ public class RealtimeModule implements PacketListener {
 				xc.disconnect();
 			}
 		}
+	}
+
+	@Override
+	public void onApplicationEvent(ApplicationEvent arg0) {
+		System.out.println("Application Event occurred: " + arg0.getSource().getClass().getCanonicalName());
+		
 	}
 
 }
