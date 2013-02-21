@@ -1,6 +1,5 @@
 package de.rwth.dbis.acis.awgs.service.jpa;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -63,6 +62,7 @@ import de.rwth.dbis.acis.awgs.service.RoomsService;
 			queryFindRoom.setParameter("user", jid);
 			queryFindRoom.setParameter("room", room);
 
+			@SuppressWarnings("unchecked")
 			List<RoomsAssociation> rooms = queryFindRoom.getResultList();
 			RoomsAssociation result = null;
 			if(rooms.size() > 0) {
@@ -106,13 +106,13 @@ import de.rwth.dbis.acis.awgs.service.RoomsService;
 			return true;
 		}
 
+		
 		@Transactional(readOnly = true)
 		public List<RoomsAssociation> getRoomsForUser(String jid) {
 			Query query = entityManager.createNamedQuery("RoomsAssociation.findByUser");
 			query.setParameter("user", jid);
-
-			List<RoomsAssociation> rooms = null;
-			rooms = query.getResultList();
+			@SuppressWarnings("unchecked")
+			List<RoomsAssociation> rooms = query.getResultList();
 			return rooms;
 		}
 

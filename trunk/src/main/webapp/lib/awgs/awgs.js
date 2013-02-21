@@ -30,7 +30,10 @@ function AwgsClient(endpointUrl){
 	
 	
 	if(localStorage.getItem("jidcred") !== null){
+		
 		this._jidcred = localStorage.getItem("jidcred");
+		console.log("loaded jidcred");
+		console.log(this._jidcred);
 	}
 	
 };
@@ -75,7 +78,8 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 	$.ajax({
 		url: resource, // specify a url to which the HTTP request is sent
 		type: "GET", // specify the HTTP operation
-		
+		contentType: "application/json",
+		cache: false,
 		// set HTTP auth header before sending request
 		beforeSend: function(xhr){
 			xhr.setRequestHeader("Authorization", "Basic " + hash);
@@ -97,12 +101,23 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 			callback(true);
 		},
 		
-		statusCode: {
-			// if credentials were not correct, return authentication failed.
-			401: function(){
-				console.log("awgs: auth failed");
+		complete: function(xhr,status){
+			console.log("Completed request...");
+			console.log(status);
+			console.log(xhr);
+			
+			if(xhr.status === 401){ // if credentials were not specified or not correct, return authentication failed.
 				callback(false);
-			} 
+			} else if(xhr.status === 200){
+				that._jidcred = hash;
+				
+				// store credentials in local storage
+				// Local Storage version
+				
+				localStorage.setItem("jidcred",hash);
+				callback(true); // if credentials were correct, return authentication succeeded.
+			}
+			
 		}
 	});
 };
@@ -322,8 +337,7 @@ AwgsClient.prototype.createItemType = function(m, callback){
 			},
 			500: function(){
 				callback({status:"servererror"});
-			},
-			
+			}
 		},
 		contentType: "application/json",
 		cache: false

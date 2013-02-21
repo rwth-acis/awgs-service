@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
@@ -49,6 +48,7 @@ import de.rwth.dbis.acis.awgs.util.Authentication;
  * 
  * This implementation has been tested successfully with ejabberd (v2.1.8).
  */
+@SuppressWarnings("rawtypes")
 public class RealtimeModule implements PacketListener, ApplicationListener {
 
 	// default values for XMPP connection parameters, if none provided as system
