@@ -173,6 +173,7 @@ public class ItemResource extends URIAwareResource{
 
 		if(o.has("url")){
 			try {
+				@SuppressWarnings("unused")
 				URL u = new URL(o.getString("url"));
 				i.setUrl(o.getString("url"));
 				modified = true;

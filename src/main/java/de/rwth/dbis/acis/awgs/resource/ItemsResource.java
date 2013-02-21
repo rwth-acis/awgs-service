@@ -106,6 +106,7 @@ public class ItemsResource extends URIAwareResource{
 		}
 		
 		try {
+			@SuppressWarnings("unused")
 			URL u = new URL(o.getString("url"));
 		} catch (MalformedURLException e1) {
 			Response.ResponseBuilder r = Response.status(Status.BAD_REQUEST);
