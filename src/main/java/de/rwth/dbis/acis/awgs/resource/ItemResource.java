@@ -99,22 +99,21 @@ public class ItemResource extends URIAwareResource{
 		StringTemplateGroup tg = new StringTemplateGroup("html",context.getRealPath("WEB-INF/template"));
 		StringTemplate t = tg.getInstanceOf("item");
 		
-		System.out.println("Host: " + info.getBaseUri().getHost());
-		System.out.println("Port: " + info.getBaseUri().getPort());
-		
 		String rootUri = "http://" + info.getBaseUri().getHost();
 		if(info.getBaseUri().getPort()>0){
 			rootUri += ":" + info.getBaseUri().getPort();
 		}
 		
 		t.setAttribute("root", rootUri);
-		t.setAttribute("item_id", i.getId());
+		t.setAttribute("i", i);
+		/*
 		t.setAttribute("item_title",i.getName());
 		t.setAttribute("item_description", i.getDescription());
-		t.setAttribute("item_type",i.getTypeInstance().getName());
 		t.setAttribute("item_url", i.getUrl());
 		t.setAttribute("item_owner", i.getOwner());
-		t.setAttribute("item_lastupdate", i.getLastUpdate().toString());
+		t.setAttribute("item_lastupdate", i.getLastUpdate()); 
+		*/
+		t.setAttribute("item_type",i.getTypeInstance().getName());
 		
 		Response.ResponseBuilder r = Response.ok(t.toString()).header("Content-Type","text/html; charset=utf-8");
 		return CORS.makeCORS(r,_corsHeaders);
