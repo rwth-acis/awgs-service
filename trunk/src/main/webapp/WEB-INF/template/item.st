@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>ACIS Group Working Series - Item $item_id$</title>
+        <title>ACIS Group Working Series - Item $i.id$</title>
 		<meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-        <meta name="description" content="$item_description$">
+        <meta name="description" content="$i.description$">
 		
 		<link href="$root$/lib/bootstrap/css/bootstrap.min.css" rel="stylesheet" media="screen">
 		
@@ -14,29 +14,15 @@
 				min-height: 100%;
 				height: auto !important;
 				height: 100%;
-				margin: 0 auto -50px;
+				margin: 50px auto -50px;
 			}
 			
-			#footer {
-				background-color: #f5f5f5;
-			}
-
-			@media (max-width: 767px) {
-				#footer {
-					margin-left: -20px;
-					margin-right: -20px;
-					padding-left: 20px;
-					padding-right: 20px;
-				}
-			}
-
-			.container-fluid {
-				width: auto;
-				max-width: 680px;
-			}
-			
-			.container-fluid .credit {
+			#description {
 				margin: 20px 0;
+			}
+			
+			label {
+				font-weight: bold;
 			}
 
 		</style>
@@ -45,25 +31,8 @@
 		<!--[if lt IE 9]>
 			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
+		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
 		<script type="text/javascript" src="$root$/lib/bootstrap/js/bootstrap.min.js"></script>
-    </head>
-    <body>
-        
-		<div id="wrap">
-			<div id="content" class="container">
-				
-				<h2>$item_id$</h2>
-				<h3>$item_title$</h3>
-			
-				<label for='owner' style='font-weight:bold;'>Owner:</label><div id='owner'><a href='xmpp:$item_owner$'>$item_owner$</a></div>
-				<label for='description' style='font-weight:bold;'>Description:</label><div id='description'>$item_description$</div>
-				<label for='url' style='font-weight:bold;'>URL:</label><div id='url'><a href='$item_url$'>$item_url$</a></div>
-				<label for='status' style='font-weight:bold;'>Type:</label><div id='type'>$item_type$</div>
-				<label for='lastup' style='font-weight:bold;'>Last Update:</label><div id='lastup'>$item_lastupdate$</div>
-				
-			</div>
-			<div id="push"/>
-		</div>
 		
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
@@ -75,7 +44,24 @@
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 			})();
 		</script>
-		
+    </head>
+    <body>
+        
+		<div id="wrap">
+			<div id="content" class="container">
+				
+				<h2>$i.id$</h2>
+				<h3>$i.name$</h3>
+				
+				<p id='description'>$i.description$</p>
+				
+				<label for='owner'>Owner:</label><div id='owner'><a href='xmpp:$i.owner$'>$i.owner$</a></div>
+				<label for='url'>URL:</label><div id='url'><a href='$i.url$'>$i.url$</a></div>
+				<label for='status' >Type:</label><div id='type'>$i.typeInstance.name$</div>
+				<label for='lastup' >Last Update:</label><div id='lastup'>$i.lastUpdate$</div>
+				
+			</div>
+		</div>
 		
     </body>
 </html>

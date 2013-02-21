@@ -24,8 +24,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.mysql.jdbc.log.Log;
-
 import de.rwth.dbis.acis.awgs.entity.Item;
 import de.rwth.dbis.acis.awgs.entity.ItemType;
 import de.rwth.dbis.acis.awgs.module.realtime.RealtimeModule;

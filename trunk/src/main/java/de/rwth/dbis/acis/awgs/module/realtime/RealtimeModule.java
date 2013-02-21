@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
@@ -126,6 +127,7 @@ public class RealtimeModule implements PacketListener, ApplicationListener {
 
 		// If we don't have a proper XMPP configuration, then it is time to quit now
 		if (!isConfigured()) {
+			System.out.println("Warning: Realtime Module not started due to missing configuration!");
 			return;
 		}
 
