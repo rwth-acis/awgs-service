@@ -85,22 +85,6 @@ AwgsClient.prototype.authenticate = function(jid, password, callback){
 			xhr.setRequestHeader("Authorization", "Basic " + hash);
 		},
 		
-		// this is one of the callbacks to be triggered on successful processing 
-		// of the request by the Web service, in this case a succeeded GET including
-		// successful authentication.
-		success: function(){
-			
-			that._jidcred = hash;
-			
-			// store credentials in local storage
-			// Local Storage version
-			
-			localStorage.setItem("jidcred",hash);
-			
-			console.log("awgs: authenticated");
-			callback(true);
-		},
-		
 		complete: function(xhr,status){
 			console.log("Completed request...");
 			console.log(status);

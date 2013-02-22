@@ -12,38 +12,107 @@
 			<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 		<![endif]-->
 		<script src="http://code.jquery.com/jquery-latest.min.js"></script>
-		<script type="text/javascript" src="./lib/jquery/external/jquery.base64.js"></script>
-		<script type="text/javascript" src="./lib/bootstrap/js/bootstrap.min.js"></script>
-		<script type="text/javascript" src="./lib/awgs/awgs.js"></script>
+		<script type="text/javascript" src="http://127.0.0.1/lib/jquery/external/jquery.base64.js"></script>
+		<script type="text/javascript" src="http://127.0.0.1/lib/bootstrap/js/bootstrap.min.js"></script>
+		<script type="text/javascript" src="http://127.0.0.1/lib/awgs/awgs.js"></script>
 		
 		<script type="text/javascript">
 			
 			var awgs;
-			//ssdfs
+			
 			function init() {
 				
-				awgs = new AwgsClient(window.location.href + "resources/");
+				awgs = new AwgsClient("http://127.0.0.1/resources/");
 				
-				$("#login-dialog").modal();
-				$("#login-button").click(function(e){
-					console.log("does anything happen here??");
+				updateStatus();
+				updateItems();
+				
+				$("#login-dialog").modal({show:false});
+				
+				$("#login-button").click(function() {
+					console.log("Login clicked");
+					$("#login-dialog").modal('show');
+				});
+				
+				$( "#logout-button" ).click(function() {
+					awgs.logout();
+					updateStatus();
+					updateItems();
+				});
+				
+				
+				$("#login-dialog-login-button").click(function(e){
+					
 					awgs.authenticate(
-						$("#login-jid").val(),
-						$("#login-pw").val(),
+						$("#login-dialog-jid").val(),
+						$("#login-dialog-pw").val(),
 						function(result){
 							if(result){
 								$("#login-dialog").modal('hide');
-								//updateStatus();
-								//updateItems();
+								updateStatus();
+								updateItems();
 							}
 						}
 					);
 				});	
 			}
-	
+			
+			function renderItems(items){
+				var itemt = "<table class='table table-bordered'>";
+				itemt += "<tr style='text-align:left; background:#ddd;'><th>Id</th><th>Name</th><th>Owner</th><th>Last Update</th><th> </th></tr>"
+				for(var i=0;i<items.length;i++){
+					var item = items[i];
+					
+					if(item.owner == awgs.getUser()){
+						itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate.substr(0,19) + "</td><td><button style='font-size:12px;width:60px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='deleteItem(\"" + item.id + "\");'>Delete</button><button style='font-size:12px;width:60px;height:20px;' class='fg-button ui-state-default ui-corner-all' onclick='updateItem(\"" + item.id + "\");'>Edit</td></tr>";
+					}	else {
+						itemt += "<tr><td><a href='" + item.resource + "'>" + item.id + "</a></td><td>" + item.name + "</td><td><a href='xmpp:" + item.owner + "' title='" +item.owner + "'>" + item.owner + "</a></td><td>" + item.lastupdate.substr(0,19) + "</td><td></td></tr>";
+					}
+				}
+				itemt += "</table>";
+				return itemt;
+			}
+			
+			function updateStatus(){
+				if(awgs.authenticated()){
+					$("#userinfo").html(awgs.getUser());
+					$("#login-button").hide();
+					$("#logout-button").show();
+					$("#register-awgs-button").show();
+				} else {
+					$("#userinfo").html("");
+					$("#login-button").show();
+					$("#logout-button").hide();
+					$("#register-awgs-button").hide();
+				}
+			}
+			
+			function updateItems() {
+				console.log("updating items");
+				if($("#search").val() == ""){
+					awgs.getItems(function(items){
+						console.log(items);
+						var ri = renderItems(items)
+						$("#items").html(ri);
+					});
+				} else {
+					awgs.searchItems($("#search").val(),function(items){
+						console.log(items);
+						var ri = renderItems(items);
+						$("#items").html(ri);
+					});
+				}
+			}
+			
 			$(document).ready(init);
 		</script>
 		
+	<style>
+      body {
+        padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+      }
+    </style>
+    
 		<script type="text/javascript">
 			var _gaq = _gaq || [];
 			_gaq.push(['_setAccount', 'UA-38649683-1']);
@@ -55,12 +124,50 @@
 			})();
 		</script>
   </head>
+  
   <body>    
-		<div id="wrap">
-			<div id="content" class="container">
+	<div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="row navbar-inner">
+        <div class="container">
+          <span class="brand" id="userinfo">ACIS Working Group Series</span>
+          <div class="nav-collapse collapse">
+            <div class="pull-right">
+			  <button id="login-button" class="btn">Sign in</button>
+			  <button id="logout-button" class="btn">Sign out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+	
+		<dl class="dl-horizontal">
+			<dt><img src="http://127.0.0.1/media/acis-shadow.png" /></dt>
+			<dd>
+				<h1>ACIS Working Group Series (AWGS)</h1>
+				<p>A service for identification and management of documents produced by the <i>Advanced Community Information Systems (ACIS)</i>  working group at RWTH Aachen University, Aachen, Germany.</p>
+			</dd>
+		</dl>
+		
+		<div>
+			<p>
+				<center>
+					<button id="register-awgs-button" class="btn btn-primary btn-large">Register new AWGS ID</button>
+				</center>
+			</p>
+			<form class="form-search">
+				<input type="text" class="input-medium search-query">
+				<button id="search-button" type="submit" class="btn">Search</button>
+			</form>
 			
-			</div>
 		</div>
+		
+		<div id="items">
+			
+		</div>
+		
+    </div> <!-- /container -->
 		
 		<!-- Login Dialog -->
 		<div id="login-dialog" class="modal hide fade in" style="display:none;">
@@ -71,21 +178,21 @@
 			<div class="modal-body">
 				<form class="form-horizontal">
 				  <div class="control-group">
-					<label class="control-label" for="login-jid">Jabber ID</label>
+					<label class="control-label" for="login-dialog-jid">Jabber ID</label>
 					<div class="controls">
-					  <input type="text" id="login-jid" placeholder="myself@myjabberserver.com">
+					  <input type="text" id="login-dialog-jid" placeholder="me@myxmppserver.com">
 					</div>
 				  </div>
 				  <div class="control-group">
-					<label class="control-label" for="login-pw">Password</label>
+					<label class="control-label" for="login-dialog-pw">Password</label>
 					<div class="controls">
-					  <input type="password" id="login-pw" placeholder="Password">
+					  <input type="password" id="login-dialog-pw" placeholder="Password">
 					</div>
 				  </div>
 				</form>
 			</div>
 			<div class="modal-footer">  
-				<button class="btn btn-success" id="login-button" >Login</button>  
+				<button class="btn btn-success" id="login-dialog-login-button" >Login</button>  
 				<button class="btn" data-dismiss="modal">Cancel</button>  
 			</div>  
 		</div>
