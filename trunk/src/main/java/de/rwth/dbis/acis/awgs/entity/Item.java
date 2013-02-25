@@ -20,7 +20,8 @@ import javax.xml.bind.annotation.XmlRootElement;
 	@NamedQuery(name = "Item.findItem", query = "SELECT m FROM Item m WHERE m.id=:id"),
 	@NamedQuery(name = "Item.findLast", query = "SELECT m FROM Item m ORDER BY m.id DESC LIMIT 0,1"),
 	@NamedQuery(name = "Item.findItemUrl", query = "SELECT m FROM Item m where m.url=:url"),
-	@NamedQuery(name = "Item.search", query = "SELECT m FROM Item m where m.id like :query or m.name like :query or m.owner like :query or m.description like :query ORDER BY m.id DESC LIMIT 0,1")
+	@NamedQuery(name = "Item.search", query = "SELECT m FROM Item m where m.id like :query or m.name like :query or m.owner like :query or m.description like :query ORDER BY m.id DESC LIMIT 0,1"),
+	@NamedQuery(name = "Item.own", query = "SELECT m FROM Item m where m.owner=:owner")
 })
 
 @XmlRootElement
