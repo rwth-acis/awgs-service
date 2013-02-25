@@ -146,6 +146,27 @@ AwgsClient.prototype.logout = function(){
 AwgsClient.prototype.getItems = function(callback){
 	var resource = this._itemsResource;
 	
+	/*
+	$.ajax({
+		url: resource, // specify a url to which the HTTP request is sent
+		type: "GET", // specify the HTTP operation
+		contentType: "application/json",
+		cache: false,
+		
+		complete: function(xhr,status){
+			console.log("AWGS Get Items: completed request...");
+			console.log(status);
+			console.log(xhr);
+			
+			if(xhr.status === 401){ // if credentials were not specified or not correct, return authentication failed.
+				//callback(false);
+			} else if(xhr.status === 200){
+				console.log("...and it was successful")
+			}
+			
+		}
+	}); */
+	
 	$.get(resource, function(data) {
 		callback(data.items);		
 	});

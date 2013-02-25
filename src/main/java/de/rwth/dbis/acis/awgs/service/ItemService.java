@@ -7,6 +7,7 @@ import de.rwth.dbis.acis.awgs.entity.Item;
 public interface ItemService {
 	public boolean save(Item item);
 	public List<Item> getAll();
+	public List<Item> getOwn(String jid);
 	public List<Item> search(String query);
 	public Item getLast();
 	public Item getById(String id);

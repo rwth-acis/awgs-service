@@ -77,6 +77,16 @@ public class ItemServiceJpa implements ItemService {
 	
 	@SuppressWarnings("unchecked")
 	@Transactional(readOnly = true)
+	public List<Item> getOwn(String ownerjid){
+		Query q = entityManager.createNamedQuery("Item.search");
+		q.setParameter("owner",ownerjid);
+
+		List<Item> items = q.getResultList();
+		return items;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Transactional(readOnly = true)
 	public Item getLast() {
 		Query query = entityManager.createNamedQuery("Item.findLast");
 		List<Item> items = query.getResultList();

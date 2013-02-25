@@ -1,5 +1,7 @@
 package de.rwth.dbis.acis.awgs.resource;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -8,6 +10,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -15,9 +18,14 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.core.Response.Status;
 
+import org.antlr.stringtemplate.StringTemplate;
+import org.antlr.stringtemplate.StringTemplateGroup;
+import org.antlr.stringtemplate.language.DefaultTemplateLexer;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -36,6 +44,12 @@ import de.rwth.dbis.acis.awgs.util.CORS;
 @Component
 public class ItemsResource extends URIAwareResource{
 
+	@Context
+	ServletContext context;
+	
+	@Context
+	UriInfo info;
+	
 	@Autowired
 	ItemService itemService;
 	
@@ -45,6 +59,35 @@ public class ItemsResource extends URIAwareResource{
 	@Autowired
 	RealtimeModule realtimeModule;
 
+	@GET
+	@Produces("text/html")
+	public Response getItemsHTML(@HeaderParam("authorization") String auth, @QueryParam(value="q") String query) {
+		try {
+			List<Item> items;
+			if(null == query || query.equals("")){
+				items = itemService.getAll();
+			}
+			else {
+				items = itemService.search(query);
+			}
+			
+			StringTemplateGroup tg = new StringTemplateGroup(
+					new FileReader(context.getRealPath("WEB-INF/template/items.stg")), DefaultTemplateLexer.class);
+			
+			StringTemplate t = tg.getInstanceOf("list");
+			
+			t.setAttribute("items", items);
+			t.setAttribute("root",this.getRootUri().toASCIIString());
+			t.setAttribute("epuri", this.getEndpointUri().toASCIIString());
+			
+			Response.ResponseBuilder r = Response.ok(t.toString());
+			return CORS.makeCORS(r,_corsHeaders);
+		} catch (FileNotFoundException e) {
+			Response.ResponseBuilder r = Response.serverError();
+			return CORS.makeCORS(r,_corsHeaders);
+		}
+	}
+	
 	@GET
 	@Produces("application/json")
 	public Response getItems(@QueryParam(value="q") String query) {

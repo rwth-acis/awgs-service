@@ -37,4 +37,16 @@ public class URIAwareResource {
 			return uriInfo.getAbsolutePath();
 		}
 	}
+	
+	protected URI getRootUri(){
+		String rootUri = "http://" + uriInfo.getBaseUri().getHost();
+		if(uriInfo.getBaseUri().getPort()>0){
+			rootUri += ":" + uriInfo.getBaseUri().getPort();
+		}
+		try {
+			return new URI(rootUri);
+		} catch (URISyntaxException e) {
+			return null;
+		}
+	}
 }

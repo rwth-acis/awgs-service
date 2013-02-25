@@ -88,7 +88,13 @@
 			}
 			
 			function updateItems() {
-				console.log("updating items");
+				console.log("updating items big time");
+				awgs.getItems(function(items){
+						console.log("Woheee... something arrived on client side");
+						ri = renderItems(items);
+						$("#items").html(ri);
+				});
+				/*
 				if($("#search").val() == ""){
 					awgs.getItems(function(items){
 						console.log(items);
@@ -101,7 +107,7 @@
 						var ri = renderItems(items);
 						$("#items").html(ri);
 					});
-				}
+				}*/
 			}
 			
 			$(document).ready(init);
@@ -157,7 +163,7 @@
 				</center>
 			</p>
 			<form class="form-search">
-				<input type="text" class="input-medium search-query">
+				<input id="search" type="text" class="input-medium search-query" />
 				<button id="search-button" type="submit" class="btn">Search</button>
 			</form>
 			
