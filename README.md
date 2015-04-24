@@ -4,12 +4,12 @@ A service for managing the ACIS Working Group Series, a series of working papers
 
 This README includes documentation on the following tasks:
 
-1. starting a development server
-2. packaging a deployable version
+1. Running AWGS Service
+2. Building AWGS Service from Source
 
 __IMPORTANT__: both tasks require Apache Maven 2.x as main build tool. Not all tasks will work with Apache Maven 3.x!
 	
-## Starting a development server
+## Running AWGS Service
 
 ### Prepare database (only once)
 
@@ -41,9 +41,9 @@ Per default, the service will be available for testing under the base URL
 
 ```localhost:8080/```
 	
-## Packaging a deployable version
+## Building AWGS Service from Source
 
-Use the following commandline to package a deployable version of the AWGS service:
+Use the following commandline to build and package a deployable version of the AWGS service:
 	
 ```mvn clean package```
 	
@@ -54,6 +54,6 @@ After successful completion, you will find deployables in subdirectory `./target
 ./target/awgs-service-0.3.tar.gz
 ```			
 
-Simply unpack and follow the instructions in the README file bundled in the deployable archive.
+Unpack and follow the instructions above to run the service.
 	
 
