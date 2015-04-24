@@ -40,7 +40,7 @@ There are several optional configuration parameters available:
 Per default, the service will be available for testing under the base URL 
 
 ```localhost:8080/```
-	
+
 ## Building AWGS Service from Source
 
 Use the following commandline to build and package a deployable version of the AWGS service:
