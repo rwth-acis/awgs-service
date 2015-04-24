@@ -1,0 +1,1 @@
+In a research group work done by multiple partners is often required to be documented a in so called working group series, i.e. a series of documents authored by working group members documenting their work for later publications. This service is dedicated to managing such working series.
