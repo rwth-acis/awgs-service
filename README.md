@@ -37,9 +37,7 @@ There are several optional configuration parameters available:
 * `-Dxmpp.user=<LOGIN>` : login of the XMPP user representing the AWGS Bot. Such a user must already exist on the XMPP server! The service will not create such a user on-the-fly. Default value is "awgs-bot".
 * `-Dxmpp.pass=<PWD>` : specify the password of the XMPP user representing the AWGS Bot. Default value is "1234567890".
 
-Per default, the service will be available for testing under the base URL 
-
-```localhost:8080/```
+Per default, the service will be available for testing under the base URL `http://localhost:8080`
 
 ## Building AWGS Service from Source
 
