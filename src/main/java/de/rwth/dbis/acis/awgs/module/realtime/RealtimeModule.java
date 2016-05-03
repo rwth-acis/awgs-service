@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.jivesoftware.smack.Connection;
 import org.jivesoftware.smack.ConnectionConfiguration;
@@ -12,6 +13,7 @@ import org.jivesoftware.smack.PacketListener;
 import org.jivesoftware.smack.XMPPConnection;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.filter.PacketFilter;
+import org.jivesoftware.smack.filter.OrFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Message.Type;
@@ -58,10 +60,11 @@ public class RealtimeModule implements PacketListener, ApplicationListener {
 	public static final String DEFAULT_XMPP_USER = "awgs-bot";
 	public static final String DEFAULT_XMPP_PASS = "1234567890";
 	public static final String DEFAULT_XMPP_MUC_SUBDOMAINPREF = "conference";
+	
 
 	// XMPP connection
 	private Connection xc;
-
+    private Random random;
 	// XMPP connection parameters
 	private String xmppHost;
 	private int xmppPort;
@@ -83,6 +86,8 @@ public class RealtimeModule implements PacketListener, ApplicationListener {
 	 * Configures a singleton instance of this class managed by Spring. Serves as Spring init-method.
 	 */
 	public void configure() {
+		
+		random = new Random();
 		
 		System.out.println("Configuring Realtime Module");
 		// Set XMPP server host name.
@@ -212,7 +217,14 @@ public class RealtimeModule implements PacketListener, ApplicationListener {
 			throw e;
 		}
 
-		PacketFilter filter = new PacketTypeFilter(Message.class);
+		//PacketFilter filter = new PacketTypeFilter(Message.class);
+		
+		OrFilter filter = new OrFilter();
+		PacketFilter msgFilter = new PacketTypeFilter(Message.class);
+		PacketFilter prsFilter = new PacketTypeFilter(Presence.class);
+		filter.addFilter(msgFilter);
+		filter.addFilter(prsFilter);
+		
 		xc.addPacketListener(this,filter);
 
 
@@ -332,149 +344,208 @@ public class RealtimeModule implements PacketListener, ApplicationListener {
 	 */
 	@Override
 	public void processPacket(Packet arg0) {
-		//System.out.println(" Package Class: " + arg0.getClass().getCanonicalName());
-		Message m = (Message) arg0;
-		//System.out.println(m.getBody());
-		String body = m.getBody();
-		String from = m.getFrom();
+		System.out.println(" Package Class: " + arg0.getClass().getCanonicalName());
+		
+		if(arg0.getClass().getCanonicalName().equals("org.jivesoftware.smack.packet.Presence")){
+			Presence p = (Presence) arg0;
+			String from = p.getFrom();
+			String status = p.getStatus();
+			System.out.println("Presence from " + from + ":" + p.getMode());
+		}
+		else{
+			Message m = (Message) arg0;
+			//System.out.println(m.getBody());
+			String body = m.getBody();
+			String from = m.getFrom();
 
-		//System.out.println("Realtime Service: message from " + m.getFrom());
-		if(body.startsWith("awgs")){
+			//System.out.println("Realtime Service: message from " + m.getFrom());
+			if(body.startsWith("awgs")){
 
-			String response;
-			String htmlResponse = "";
+				String response;
+				String htmlResponse = "";
 
-			if(body.trim().equals("awgs help")){
-				response = "Command list:\n";
-				response += "awgs list - get list of AWGS items\n";
-				response += "awgs search <query> - search for AWGS items\n";
-				response += "awgs get <id> - get information about given item\n";
-				response += "awgs sucks - insult bot\n";
-				response += "awgs learn insult <insult> - teach bot new insult\n";
-				
-			}
-			else if(body.trim().equals("awgs sucks")){
-				String respondTo;
-				if(m.getType().equals(Message.Type.groupchat)){
-					//System.out.println("Realtime Service: detected MUC message");
-					respondTo = from.split("/")[1];
-				}
-				else{
-					//System.out.println("Realtime Service: detected IM message");
-					respondTo = from.split("@")[0];
-				}
-				
-				response = "@" + respondTo + ": "  + insultService.getRandom().getInsult();
-			}
-			else if(body.trim().startsWith("awgs learn insult ")){
-				String[] tokens = body.trim().split("awgs learn insult ");
-				if(tokens.length != 2){
-					response = "Syntax error";
-					response += "Command Syntax: awgs learn insult <insult>";
-				}
-				else{
-					String contributor = from;
-					String insult = tokens[1];
-					
-					Insult i = new Insult();
-					i.setContributor(contributor);
-					i.setInsult(insult);
-					i.setDate(new Date());
-					
-					insultService.save(i);
-
-					response = "Thanks for the new insult! I will use it against you eventually...";
+				if(body.trim().equals("awgs help")){
+					response = "Command list:\n";
+					response += "awgs list - get list of AWGS items\n";
+					response += "awgs search <query> - search for AWGS items\n";
+					response += "awgs get <id> - get information about given item\n";
+					response += "awgs sucks - insult bot\n";
+					response += "awgs learn insult <insult> - teach bot new insult\n";
+					response += "awgs insult <user> - insult person\n";
 					
 				}
-			}
-			else if(body.trim().equals("awgs list")){
-
-				List<Item> items = itemService.getAll();
-				Iterator<Item>itemsit = items.iterator();
-				response = "ACIS Working Group Series\n-------------------------\n";
-
-				while(itemsit.hasNext()){
-					Item i = itemsit.next();
-					response += "\n  - " + i.getId() + ": " + i.getName();
+				else if(body.trim().equals("awgs sucks")){
+					String respondTo;
+					if(m.getType().equals(Message.Type.groupchat)){
+						//System.out.println("Realtime Service: detected MUC message");
+						respondTo = from.split("/")[1];
+					}
+					else{
+						//System.out.println("Realtime Service: detected IM message");
+						respondTo = from.split("@")[0];
+					}
+					
+					response = "@" + respondTo + ": "  + insultService.getRandom().getInsult();
 				}
-			}
-			else if(body.trim().startsWith("awgs search ")){
+				else if(body.trim().startsWith("awgs insult")){
+					String[] tokens = body.trim().split("awgs insult ");
+					String user = "";
+					
+					for(int i=0;i<tokens.length;i++){
+						System.out.println("Token " + i + ":" + tokens[i]);
+					}
+					
+					if(tokens.length < 2){
+					  response = "Syntax error";
+					  response = "Command Syntax: awgs insult <user> [in <room>]";
+					}
+					else{
+					  user = tokens[1];
+					  response = "@" + user + ": "  + insultService.getRandom().getInsult();
+					}
+					
+					String to = null;
+					
+					Message.Type type = m.getType();
 
-				String[] tokens = body.trim().split("awgs search ");
-				if(tokens.length != 2){
-					response = "Syntax error";
-					response += "Command Syntax: awgs search <query>";
+					// overt insult triggered in room -> bot responds with insult in room
+					if(m.getType().equals(Message.Type.groupchat)){
+						//System.out.println("Realtime Service: detected MUC message");
+						to = from.split("/")[0];
+						sendMessage(to, type, response, htmlResponse);
+						return;
+					}
+					// covert insult in 1-on-1 conversation with bot -> bot broadcasts insult to all known rooms
+					else{
+						to = from;
+						
+						int taddletail = random.nextInt(2);
+						System.out.println("Taddletail? " + taddletail);
+						
+						if(taddletail == 0){
+						  sendMessage(to, type,"Ok, broadcasted your covert insult to all rooms. You're still a coward...", htmlResponse);
+						  broadcastToRooms(response, htmlResponse);
+						}
+						else{
+						  String you = from.split("@")[0];
+						  sendMessage(to,type,"Nope, you can go fuck yourself. I'll tell on you instead.",htmlResponse);
+						  broadcastToRooms("@" + user + ", " + you + " wanted me to insult you, but I decided to not do it...",htmlResponse);
+						}
+						
+						return;
+					}
+
+
 				}
-				else{
-					String query = "%"+ tokens[1] + "%";
-					List<Item> items = itemService.search(query);
+				else if(body.trim().startsWith("awgs learn insult ")){
+					String[] tokens = body.trim().split("awgs learn insult ");
+					if(tokens.length != 2){
+						response = "Syntax error";
+						response += "Command Syntax: awgs learn insult <insult>";
+					}
+					else{
+						String contributor = from;
+						String insult = tokens[1];
+						
+						Insult i = new Insult();
+						i.setContributor(contributor);
+						i.setInsult(insult);
+						i.setDate(new Date());
+						
+						insultService.save(i);
+
+						response = "Thanks for the new insult! You are sooo creative, bitch!";
+						
+					}
+				}
+				else if(body.trim().equals("awgs list")){
+
+					List<Item> items = itemService.getAll();
 					Iterator<Item>itemsit = items.iterator();
-					response = "ACIS Working Group Series (" + items.size() + " results for query '" + tokens[1] + "')\n------------------------------------------";
+					response = "ACIS Working Group Series\n-------------------------\n";
+
 					while(itemsit.hasNext()){
 						Item i = itemsit.next();
 						response += "\n  - " + i.getId() + ": " + i.getName();
 					}
 				}
+				else if(body.trim().startsWith("awgs search ")){
 
-			}
-			else if(body.trim().startsWith("awgs get ")){
-				String[] tokens = body.trim().split("awgs get ");
-				if(tokens.length != 2){
-					response = "Syntax error";
-					response += "Command Syntax: awgs get <id>";
+					String[] tokens = body.trim().split("awgs search ");
+					if(tokens.length != 2){
+						response = "Syntax error";
+						response += "Command Syntax: awgs search <query>";
+					}
+					else{
+						String query = "%"+ tokens[1] + "%";
+						List<Item> items = itemService.search(query);
+						Iterator<Item>itemsit = items.iterator();
+						response = "ACIS Working Group Series (" + items.size() + " results for query '" + tokens[1] + "')\n------------------------------------------";
+						while(itemsit.hasNext()){
+							Item i = itemsit.next();
+							response += "\n  - " + i.getId() + ": " + i.getName();
+						}
+					}
+
+				}
+				else if(body.trim().startsWith("awgs get ")){
+					String[] tokens = body.trim().split("awgs get ");
+					if(tokens.length != 2){
+						response = "Syntax error";
+						response += "Command Syntax: awgs get <id>";
+					}
+					else{
+						String id = tokens[1];
+						response = id;
+						Item i = itemService.getById(id);
+
+						if(i!=null){
+							response += "\nName: " + i.getName();
+							response += "\nDescription: " + i.getDescription();
+							response += "\nOwner: " + i.getOwner();
+							response += "\nDocument URL: " + i.getUrl();
+
+							String status;
+
+							if(i.getType() == 0){
+								status = "draft";
+							}
+							else if(i.getType() == 1){
+								status = "submitted";
+							}
+							else{
+								status = "unknown";
+							}
+
+							response += "\nStatus: " + status;
+						}
+						else {
+							response = "Item " + id + " does not exist.";
+						}
+					}
+				}
+
+				else{
+					response = "Send 'awgs help' for a list of commands.";
+				}
+
+				String to = null;
+				Message.Type type = m.getType();
+
+				if(m.getType().equals(Message.Type.groupchat)){
+					//System.out.println("Realtime Service: detected MUC message");
+					to = from.split("/")[0];
 				}
 				else{
-					String id = tokens[1];
-					response = id;
-					Item i = itemService.getById(id);
-
-					if(i!=null){
-						response += "\nName: " + i.getName();
-						response += "\nDescription: " + i.getDescription();
-						response += "\nOwner: " + i.getOwner();
-						response += "\nDocument URL: " + i.getUrl();
-
-						String status;
-
-						if(i.getType() == 0){
-							status = "draft";
-						}
-						else if(i.getType() == 1){
-							status = "submitted";
-						}
-						else{
-							status = "unknown";
-						}
-
-						response += "\nStatus: " + status;
-					}
-					else {
-						response = "Item " + id + " does not exist.";
-					}
+					//System.out.println("Realtime Service: detected IM message");
+					to = from;
 				}
+
+				//System.out.println("Realtime Service: sending reply to " + to);
+
+				sendMessage(to, type, response, htmlResponse);
+				//System.out.println("Realtime Service: sent reply to " + to);
 			}
-
-			else{
-				response = "Send 'awgs help' for a list of commands.";
-			}
-
-			String to = null;
-			Message.Type type = m.getType();
-
-			if(m.getType().equals(Message.Type.groupchat)){
-				//System.out.println("Realtime Service: detected MUC message");
-				to = from.split("/")[0];
-			}
-			else{
-				//System.out.println("Realtime Service: detected IM message");
-				to = from;
-			}
-
-			//System.out.println("Realtime Service: sending reply to " + to);
-
-			sendMessage(to, type, response, htmlResponse);
-			//System.out.println("Realtime Service: sent reply to " + to);
-
 		}
 	}
 
