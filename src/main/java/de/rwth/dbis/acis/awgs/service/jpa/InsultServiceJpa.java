@@ -1,6 +1,7 @@
 package de.rwth.dbis.acis.awgs.service.jpa;
 
 import java.util.List;
+import java.util.Random;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -17,6 +18,7 @@ import de.rwth.dbis.acis.awgs.service.InsultService;
 public class InsultServiceJpa implements InsultService {
 
 	private EntityManager entityManager;
+	private static Random random = new Random();
 
 	@PersistenceContext
 	public void setEntityManager(EntityManager entityManager) {
@@ -86,7 +88,9 @@ public class InsultServiceJpa implements InsultService {
 	@Transactional(readOnly = true)
 	public Insult getRandom() {
 		int lid = this.getLast().getId();
-		int rid = 1 + (int) ( Math.random()*(lid - 1) );
+		int rid = 1 + random.nextInt(lid);
+		System.out.println("Next insult: " + rid);
+		//int rid = 1 + (int) ( Math.random()*(lid - 1) );
 		//System.out.println("Last ID: " + lid + " Random ID: " + rid);
 		return get(rid);
 		

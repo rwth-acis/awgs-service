@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 @echo on
 
 mvn clean jetty:run -Djetty.port=9000 -Dxmpp.host=localhost
@@ -7,3 +8,7 @@ mvn clean jetty:run -Djetty.port=9000 -Dxmpp.host=localhost
 * `-Dxmpp.port=<PORT>` : port of the XMPP server on which the AWGS Bot should listen. Default value is 5222 (XMPP standard port for client-server connections).
 * `-Dxmpp.user=<LOGIN>` : login of the XMPP user representing the AWGS Bot. Such a user must already exist on the XMPP server! The service will not create such a user on-the-fly. Default value is "awgs-bot".
 * `-Dxmpp.pass=<PWD>` : specify the password of the XMPP user representing the AWGS Bot. Default value is "1234567890".
+=======
+
+mvn clean jetty:run -Dxmpp.host=localhost -Dxmpp.user=awgs -Dxmpp.pass=1234567890
+>>>>>>> ac17de826478295784c6824422d4520a042646d7
